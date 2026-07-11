@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { trendingCards } from '../data/mockData';
+import { useLanguage } from '../context/LanguageContext';
 
 type Screen = 'landing' | 'dashboard' | 'scanner' | 'results' | 'portfolio' | 'chat' | 'market';
 interface Props { onNavigate: (s: Screen) => void; }
@@ -17,10 +18,10 @@ const marketTrend = [
 ];
 
 const renaisssSignals = [
-  { name: 'Marketplace Activity', value: 87, color: '#00F5FF', desc: 'High transaction volume on Renaiss ecosystem' },
-  { name: 'Liquidity Depth', value: 73, color: '#FF00E5', desc: 'Strong bid-ask spread tightening' },
-  { name: 'On-Chain Demand', value: 91, color: '#00E676', desc: 'Record wallet interactions with TCG assets' },
-  { name: 'Collector Sentiment', value: 82, color: '#FFB800', desc: 'Bullish community signals across PSA grades' },
+  { name: 'market.renaissData.s1', value: 87, color: '#00F5FF', desc: 'market.renaissData.d1' },
+  { name: 'market.renaissData.s2', value: 73, color: '#FF00E5', desc: 'market.renaissData.d2' },
+  { name: 'market.renaissData.s3', value: 91, color: '#00E676', desc: 'market.renaissData.d3' },
+  { name: 'market.renaissData.s4', value: 82, color: '#FFB800', desc: 'market.renaissData.d4' },
 ];
 
 const hotSets = [
@@ -43,6 +44,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export default function MarketInsights({ onNavigate }: Props) {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState<'trending' | 'sets' | 'renaiss'>('trending');
+  const { t } = useLanguage();
 
   const filtered = trendingCards.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -56,14 +58,14 @@ export default function MarketInsights({ onNavigate }: Props) {
       {/* Header */}
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: '#00F5FF' }}>Live Data</div>
+          <div className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: '#00F5FF' }}>{t('market.header.subtitle')}</div>
           <h1 className="text-3xl md:text-4xl font-black text-[#F8F6F0]" style={{ fontFamily: 'Poppins, sans-serif' }}>
-            Market <span className="gradient-text">Insights</span>
+            {t('market.header.title1')}<span className="gradient-text">{t('market.header.title2')}</span>
           </h1>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold" style={{ background: 'rgba(0,245,255,0.1)', border: '1px solid rgba(0,245,255,0.25)', color: '#00F5FF' }}>
           <div className="w-2 h-2 rounded-full bg-[#00E676] animate-pulse" />
-          Renaiss Index Live (Beta)
+          {t('market.header.liveBadge')}
         </div>
       </div>
 
@@ -71,8 +73,8 @@ export default function MarketInsights({ onNavigate }: Props) {
       <div className="grid md:grid-cols-3 gap-4 mb-8">
         <div className="md:col-span-2 rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
           <div className="flex items-center justify-between mb-4">
-            <div className="text-sm font-bold text-[#F8F6F0]">PSA Pokémon Market Index</div>
-            <div className="text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(0,230,118,0.12)', color: '#00E676' }}>+44% YTD</div>
+            <div className="text-sm font-bold text-[#F8F6F0]">{t('market.overview.indexTitle')}</div>
+            <div className="text-xs px-2 py-1 rounded-full font-semibold" style={{ background: 'rgba(0,230,118,0.12)', color: '#00E676' }}>{t('market.overview.ytd')}</div>
           </div>
           <ResponsiveContainer width="100%" height={140}>
             <AreaChart data={marketTrend}>
@@ -92,11 +94,11 @@ export default function MarketInsights({ onNavigate }: Props) {
 
         <div className="space-y-3">
           {[
-            { label: 'Market Cap', value: '$2.4B', change: '+8.2%', positive: true },
-            { label: 'PSA 10s Sold (30d)', value: '14,821', change: '+31%', positive: true },
-            { label: 'Avg Sale Price', value: '$892', change: '+5.6%', positive: true },
-          ].map((stat) => (
-            <div key={stat.label} className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            { label: t('market.overview.mktCap'), value: '$2.4B', change: '+8.2%', positive: true },
+            { label: t('market.overview.sold30d'), value: '14,821', change: '+31%', positive: true },
+            { label: t('market.overview.avgPrice'), value: '$892', change: '+5.6%', positive: true },
+          ].map((stat, idx) => (
+            <div key={idx} className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
               <div className="text-xs mb-1" style={{ color: 'rgba(248,246,240,0.5)' }}>{stat.label}</div>
               <div className="flex items-baseline justify-between">
                 <div className="text-xl font-black text-[#F8F6F0]">{stat.value}</div>
@@ -109,15 +111,15 @@ export default function MarketInsights({ onNavigate }: Props) {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6">
-        {(['trending', 'sets', 'renaiss'] as const).map((t) => (
-          <button key={t} onClick={() => setTab(t)}
+        {(['trending', 'sets', 'renaiss'] as const).map((tValue) => (
+          <button key={tValue} onClick={() => setTab(tValue)}
             className="px-5 py-2.5 rounded-full text-sm font-semibold capitalize transition-all"
             style={{
-              background: tab === t ? 'rgba(0,245,255,0.15)' : 'rgba(255,255,255,0.04)',
-              border: `1px solid ${tab === t ? 'rgba(0,245,255,0.4)' : 'rgba(255,255,255,0.08)'}`,
-              color: tab === t ? '#00F5FF' : 'rgba(248,246,240,0.6)',
+              background: tab === tValue ? 'rgba(0,245,255,0.15)' : 'rgba(255,255,255,0.04)',
+              border: `1px solid ${tab === tValue ? 'rgba(0,245,255,0.4)' : 'rgba(255,255,255,0.08)'}`,
+              color: tab === tValue ? '#00F5FF' : 'rgba(248,246,240,0.6)',
             }}>
-            {t === 'renaiss' ? '◉ Renaiss Signals' : t === 'trending' ? '🔥 Trending' : '⬡ Hot Sets'}
+            {t(`market.tabs.${tValue}`)}
           </button>
         ))}
       </div>
@@ -129,7 +131,7 @@ export default function MarketInsights({ onNavigate }: Props) {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search cards or sets..."
+              placeholder={t('market.trending.searchPlaceholder')}
               className="w-full max-w-sm px-4 py-2.5 rounded-xl text-sm bg-transparent focus:outline-none"
               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#F8F6F0', fontFamily: 'Poppins, sans-serif' }}
             />
@@ -156,7 +158,7 @@ export default function MarketInsights({ onNavigate }: Props) {
                 </div>
                 <div className="flex-shrink-0 px-3 py-1 rounded-full text-[10px] font-bold capitalize"
                   style={{ background: `${signalColor(card.signal)}18`, color: signalColor(card.signal), border: `1px solid ${signalColor(card.signal)}40` }}>
-                  {card.signal}
+                  {t(`dashboard.stats.${card.signal}`)}
                 </div>
               </div>
             ))}
@@ -168,7 +170,7 @@ export default function MarketInsights({ onNavigate }: Props) {
         <div className="grid md:grid-cols-2 gap-6">
           {/* Volume Chart */}
           <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <div className="text-sm font-bold text-[#F8F6F0] mb-4">Sales Volume by Set ($M, 30d)</div>
+            <div className="text-sm font-bold text-[#F8F6F0] mb-4">{t('market.sets.chartTitle')}</div>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={marketData} barCategoryGap="30%">
                 <XAxis dataKey="set" tick={{ fontSize: 9, fill: 'rgba(248,246,240,0.4)' }} axisLine={false} tickLine={false} />
@@ -181,7 +183,7 @@ export default function MarketInsights({ onNavigate }: Props) {
 
           {/* Hot Sets List */}
           <div className="space-y-3">
-            <div className="text-sm font-bold text-[#F8F6F0] mb-4">🔥 Hottest Sets Right Now</div>
+            <div className="text-sm font-bold text-[#F8F6F0] mb-4">{t('market.sets.listTitle')}</div>
             {hotSets.map((set, i) => (
               <div key={i} className="flex items-center gap-4 p-4 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <span className="text-2xl">{set.icon}</span>
@@ -207,13 +209,13 @@ export default function MarketInsights({ onNavigate }: Props) {
             {renaisssSignals.map((signal, i) => (
               <div key={i} className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${signal.color}25` }}>
                 <div className="flex items-center justify-between mb-3">
-                  <div className="text-sm font-bold text-[#F8F6F0]">{signal.name}</div>
+                  <div className="text-sm font-bold text-[#F8F6F0]">{t(signal.name)}</div>
                   <div className="text-2xl font-black" style={{ color: signal.color }}>{signal.value}</div>
                 </div>
                 <div className="h-2 rounded-full overflow-hidden mb-3" style={{ background: 'rgba(255,255,255,0.08)' }}>
                   <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${signal.value}%`, background: `linear-gradient(90deg, ${signal.color}, ${signal.color}88)` }} />
                 </div>
-                <div className="text-xs" style={{ color: 'rgba(248,246,240,0.5)' }}>{signal.desc}</div>
+                <div className="text-xs" style={{ color: 'rgba(248,246,240,0.5)' }}>{t(signal.desc)}</div>
               </div>
             ))}
           </div>
@@ -222,19 +224,19 @@ export default function MarketInsights({ onNavigate }: Props) {
             <div className="flex items-center gap-3 mb-4">
               <span className="text-xl">◉</span>
               <div>
-                <div className="text-sm font-bold text-[#F8F6F0]">Renaiss Ecosystem Summary</div>
-                <div className="text-xs font-semibold" style={{ color: '#00F5FF' }}>Beta · Real-time data</div>
+                <div className="text-sm font-bold text-[#F8F6F0]">{t('market.renaissDetails.title')}</div>
+                <div className="text-xs font-semibold" style={{ color: '#00F5FF' }}>{t('market.renaissDetails.subtitle')}</div>
               </div>
             </div>
             <p className="text-sm leading-relaxed mb-4" style={{ color: 'rgba(248,246,240,0.65)' }}>
-              The Renaiss ecosystem is showing strong positive signals across all major indicators. On-chain demand for PSA-graded Pokémon TCG assets has reached record highs this month, with marketplace transaction volumes up 31% month-over-month. Liquidity depth analysis shows tightening bid-ask spreads across PSA 9 and PSA 10 vintage cards, particularly in the Base Set and Neo series segments.
+              {t('market.renaissDetails.desc')}
             </p>
             <div className="grid grid-cols-3 gap-4">
               {[
-                { label: 'Active Wallets', value: '12,840', trend: '+18%' },
-                { label: 'Daily Tx Volume', value: '$4.2M', trend: '+31%' },
-                { label: 'Avg Hold Time', value: '142 days', trend: '+8d' },
-              ].map((m) => (
+                { label: t('market.renaissDetails.m1'), value: '12,840', trend: '+18%' },
+                { label: t('market.renaissDetails.m2'), value: '$4.2M', trend: '+31%' },
+                { label: t('market.renaissDetails.m3'), value: '142 days', trend: '+8d' },
+              ].map((m, idx) => (
                 <div key={m.label} className="text-center">
                   <div className="text-lg font-black text-[#F8F6F0]">{m.value}</div>
                   <div className="text-[10px] mb-0.5" style={{ color: 'rgba(248,246,240,0.45)' }}>{m.label}</div>
@@ -245,7 +247,7 @@ export default function MarketInsights({ onNavigate }: Props) {
           </div>
 
           <div className="mt-4 p-4 rounded-xl text-[11px]" style={{ background: 'rgba(255,184,0,0.08)', border: '1px solid rgba(255,184,0,0.2)', color: 'rgba(255,184,0,0.75)' }}>
-            ⚠ Renaiss Index API is in Beta. All signals, metrics, and data points shown are for informational purposes only and do not constitute financial, investment, or trading advice. Past performance does not guarantee future results.
+            {t('market.renaissDetails.disclaimer')}
           </div>
         </div>
       )}

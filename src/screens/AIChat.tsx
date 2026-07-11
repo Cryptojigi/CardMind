@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { chatHistory, smartPrompts, mockCards, Card } from '../data/mockData';
 import { useGlobalState } from '../context/GlobalStateContext';
 import { askGemini } from '../services/geminiApi';
+import { useLanguage } from '../context/LanguageContext';
 import Logo from '../components/Logo';
 
 type Screen = 'landing' | 'dashboard' | 'scanner' | 'results' | 'portfolio' | 'chat' | 'market';
@@ -108,6 +109,7 @@ const getAgentSteps = (query: string): string[] => {
 
 export default function AIChat({ onNavigate }: Props) {
   const { portfolio, activeScan, pendingChatPrompt, setPendingChatPrompt } = useGlobalState();
+  const { t, language } = useLanguage();
   const [messages, setMessages] = useState<Message[]>([...chatHistory]);
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
@@ -152,7 +154,7 @@ export default function AIChat({ onNavigate }: Props) {
     try {
       const historyForGemini = messages.map(m => ({ role: m.role, content: m.content }));
       const [geminiResponse] = await Promise.all([
-        askGemini(query, portfolio, activeScan, historyForGemini),
+        askGemini(query, portfolio, activeScan, historyForGemini, language),
         stepPromise,
       ]);
       responseText = geminiResponse;
@@ -196,13 +198,13 @@ export default function AIChat({ onNavigate }: Props) {
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-lg md:text-xl font-black text-[#F8F6F0]" style={{ fontFamily: 'Poppins, sans-serif' }}>
-            <span className="text-xs font-bold tracking-widest uppercase mr-2" style={{ color: '#FF00E5' }}>AI</span>
-            CardMind <span className="gradient-text">Chat</span>
+            <span className="text-xs font-bold tracking-widest uppercase mr-2" style={{ color: '#FF00E5' }}>{t('chat.header.ai')}</span>
+            {t('chat.header.title1')}<span className="gradient-text">{t('chat.header.title2')}</span>
           </h1>
         </div>
         <div className="flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(0,245,255,0.1)', border: '1px solid rgba(0,245,255,0.25)', color: '#00F5FF' }}>
-          <div className="w-1.5 h-1.5 rounded-full bg-[#00E676] animate-pulse" />
-          3 Agents Active
+          <div className="w-2 h-2 rounded-full bg-[#00E676] animate-pulse" />
+          {t('chat.header.activeAgents')}
         </div>
       </div>
 
@@ -286,10 +288,10 @@ export default function AIChat({ onNavigate }: Props) {
 
       {/* Context card reference */}
       <div className="mt-2 mb-1 flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-        <span className="text-[9px] font-semibold flex-shrink-0" style={{ color: 'rgba(248,246,240,0.35)' }}>Context:</span>
+        <span className="text-[9px] font-semibold flex-shrink-0" style={{ color: 'rgba(248,246,240,0.35)' }}>{t('chat.contextLabel')}</span>
         {(portfolio.length > 0 ? portfolio : mockCards).slice(0, 3).map(card => (
           <button key={card.id}
-            onClick={() => sendMessage(`Tell me about my ${card.name} ${card.grader} ${card.grade}`)}
+            onClick={() => sendMessage(`${t('chat.contextPrompt')}${card.name} ${card.grader} ${card.grade}`)}
             className="flex-shrink-0 px-2 py-0.5 rounded-full text-[9px] font-semibold transition-all hover:scale-105"
             style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(248,246,240,0.5)' }}>
             {card.name} {card.grader}{card.grade}
@@ -305,7 +307,7 @@ export default function AIChat({ onNavigate }: Props) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } }}
-            placeholder="Ask about card values, market trends, portfolio advice..."
+            placeholder={t('chat.input.placeholder')}
             className="w-full bg-transparent px-4 py-2.5 text-sm focus:outline-none"
             style={{ color: '#F8F6F0', fontFamily: 'Poppins, sans-serif' }}
           />
@@ -321,7 +323,7 @@ export default function AIChat({ onNavigate }: Props) {
       </div>
 
       <div className="mt-1 mb-1 text-[9px] text-center" style={{ color: 'rgba(248,246,240,0.3)' }}>
-        AI responses may include simulated data · Powered by Renaiss Index API (Public) · Not financial advice
+        {t('chat.disclaimer')}
       </div>
     </div>
   );

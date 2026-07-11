@@ -3,7 +3,7 @@ import { Card } from '../data/mockData';
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || '';
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-const buildSystemPrompt = (portfolio: Card[], activeScan: Card | null): string => {
+const buildSystemPrompt = (portfolio: Card[], activeScan: Card | null, language: string): string => {
   let context = `You are CardMind AI, an expert multi-agent assistant for PSA-graded Pokémon card collectors. You specialize in card valuations, market analysis, portfolio management, and the Renaiss blockchain ecosystem.
 
 PERSONALITY & RULES:
@@ -16,6 +16,7 @@ PERSONALITY & RULES:
 - End responses with a brief italic disclaimer like: *Powered by Renaiss Index API (Public) — For informational purposes only*
 - Never say you are Llama, Meta, Groq, or a language model. You are CardMind AI.
 - If asked about non-card topics, gently redirect to card collecting and trading.
+- IMPORTANT: You MUST respond in the user's selected language: ${language === 'zh' ? 'Simplified Chinese (Mandarin)' : 'English'}. All your output must be translated to this language.
 
 `;
 
@@ -43,9 +44,10 @@ export const askGemini = async (
   userMessage: string,
   portfolio: Card[],
   activeScan: Card | null,
-  chatHistory: { role: string; content: string }[] = []
+  chatHistory: { role: string; content: string }[] = [],
+  language: string = 'en'
 ): Promise<string> => {
-  const systemPrompt = buildSystemPrompt(portfolio, activeScan);
+  const systemPrompt = buildSystemPrompt(portfolio, activeScan, language);
 
   // Build conversation history (last 6 messages max)
   const recentHistory = chatHistory.slice(-6).map(msg => ({

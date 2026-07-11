@@ -1,5 +1,6 @@
 import Logo from './Logo';
 import { useGlobalState } from '../context/GlobalStateContext';
+import { useLanguage } from '../context/LanguageContext';
 
 type Screen = 'landing' | 'dashboard' | 'scanner' | 'results' | 'portfolio' | 'chat' | 'market';
 
@@ -9,16 +10,17 @@ interface NavProps {
   variant?: 'landing' | 'app';
 }
 
-const appNavItems: { label: string; screen: Screen; icon: string }[] = [
-  { label: 'Dashboard', screen: 'dashboard', icon: '⬡' },
-  { label: 'Scan', screen: 'scanner', icon: '⊙' },
-  { label: 'Portfolio', screen: 'portfolio', icon: '◈' },
-  { label: 'Market', screen: 'market', icon: '◉' },
-  { label: 'AI Chat', screen: 'chat', icon: '✦' },
+const appNavItems: { labelKey: string; screen: Screen; icon: string }[] = [
+  { labelKey: 'nav.dashboard', screen: 'dashboard', icon: '⬡' },
+  { labelKey: 'nav.scan', screen: 'scanner', icon: '⊙' },
+  { labelKey: 'nav.portfolio', screen: 'portfolio', icon: '◈' },
+  { labelKey: 'nav.market', screen: 'market', icon: '◉' },
+  { labelKey: 'nav.aiChat', screen: 'chat', icon: '✦' },
 ];
 
 export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavProps) {
-  const { isWalletConnected, walletAddress, connectWallet, disconnectWallet, isUsingMockData, isFetchingPortfolio } = variant === 'app' ? useGlobalState() : { isWalletConnected: false, walletAddress: '', connectWallet: () => {}, disconnectWallet: () => {}, isUsingMockData: false, isFetchingPortfolio: false };
+  const { isWalletConnected, walletAddress, connectWallet, disconnectWallet, isUsingMockData, isFetchingPortfolio, activeScan } = variant === 'app' ? useGlobalState() : { isWalletConnected: false, walletAddress: '', connectWallet: () => {}, disconnectWallet: () => {}, isUsingMockData: false, isFetchingPortfolio: false, activeScan: null };
+  const { t, language, toggleLanguage } = useLanguage();
 
   if (variant === 'landing') {
     return (
@@ -41,6 +43,9 @@ export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavP
             </button>
             <button className="text-sm font-medium text-[#F8F6F0] opacity-60 hover:opacity-100 transition-opacity">Docs</button>
             <button className="text-sm font-medium text-[#F8F6F0] opacity-60 hover:opacity-100 transition-opacity">About</button>
+            <button onClick={toggleLanguage} className="text-sm font-medium text-[#00F5FF] hover:text-[#FF00E5] transition-colors">
+              {language === 'en' ? '中文' : 'EN'}
+            </button>
           </div>
           <button
             onClick={() => onNavigate('dashboard')}
@@ -51,7 +56,7 @@ export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavP
               boxShadow: '0 0 30px rgba(0,245,255,0.4)',
             }}
           >
-            Launch App →
+            {t('landing.launchApp')}
           </button>
         </div>
       </nav>
@@ -74,26 +79,30 @@ export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavP
                 title="Demo Mode Active - Using simulated data due to API rate limits"
               >
                 <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#FFB800' }}></div>
-                <span className="text-[10px] font-bold tracking-wider uppercase" style={{ color: '#FFB800' }}>Demo Mode</span>
+                <span className="text-[10px] font-bold tracking-wider uppercase" style={{ color: '#FFB800' }}>{t('nav.demoMode')}</span>
               </div>
             )}
           </div>
           <div className="hidden md:flex items-center gap-1">
-            {appNavItems.map((item) => (
-              <button
-                key={item.screen}
-                onClick={() => onNavigate(item.screen)}
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
-                style={{
-                  color: currentScreen === item.screen ? '#00F5FF' : 'rgba(248,246,240,0.6)',
-                  background: currentScreen === item.screen ? 'rgba(0,245,255,0.1)' : 'transparent',
-                  border: currentScreen === item.screen ? '1px solid rgba(0,245,255,0.2)' : '1px solid transparent',
-                }}
-              >
-                <span className="mr-1.5 text-xs">{item.icon}</span>
-                {item.label}
-              </button>
-            ))}
+            {appNavItems.map((item) => {
+              const targetScreen = item.screen === 'scanner' && activeScan ? 'results' : item.screen;
+              const isActive = currentScreen === item.screen || (item.screen === 'scanner' && currentScreen === 'results');
+              return (
+                <button
+                  key={item.screen}
+                  onClick={() => onNavigate(targetScreen)}
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                  style={{
+                    color: isActive ? '#00F5FF' : 'rgba(248,246,240,0.6)',
+                    background: isActive ? 'rgba(0,245,255,0.1)' : 'transparent',
+                    border: isActive ? '1px solid rgba(0,245,255,0.2)' : '1px solid transparent',
+                  }}
+                >
+                  <span className="mr-1.5 text-xs">{item.icon}</span>
+                  {t(item.labelKey)}
+                </button>
+              );
+            })}
           </div>
           {currentScreen === 'portfolio' ? (
             isWalletConnected ? (
@@ -143,25 +152,33 @@ export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavP
                 boxShadow: '0 0 20px rgba(0,245,255,0.3)',
               }}
             >
-              + Scan Card
+              {t('nav.scanCardBtn')}
             </button>
           )}
+          
+          <button onClick={toggleLanguage} className="ml-2 text-xs font-bold text-[#F8F6F0] px-2 py-1 rounded" style={{ background: 'rgba(255,255,255,0.1)' }}>
+            {language === 'en' ? '中文' : 'EN'}
+          </button>
         </div>
       </nav>
 
       {/* Bottom mobile nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden" style={{ background: 'rgba(10,15,28,0.95)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="flex items-center justify-around px-2 py-3">
-          {appNavItems.map((item) => (
-            <button
-              key={item.screen}
-              onClick={() => onNavigate(item.screen)}
-              className="flex flex-col items-center gap-1 px-3 py-1"
-            >
-              <span style={{ color: currentScreen === item.screen ? '#00F5FF' : 'rgba(248,246,240,0.4)', fontSize: 18 }}>{item.icon}</span>
-              <span className="text-[10px] font-medium" style={{ color: currentScreen === item.screen ? '#00F5FF' : 'rgba(248,246,240,0.4)' }}>{item.label}</span>
-            </button>
-          ))}
+          {appNavItems.map((item) => {
+            const targetScreen = item.screen === 'scanner' && activeScan ? 'results' : item.screen;
+            const isActive = currentScreen === item.screen || (item.screen === 'scanner' && currentScreen === 'results');
+            return (
+              <button
+                key={item.screen}
+                onClick={() => onNavigate(targetScreen)}
+                className="flex flex-col items-center gap-1 px-3 py-1"
+              >
+                <span style={{ color: isActive ? '#00F5FF' : 'rgba(248,246,240,0.4)', fontSize: 18 }}>{item.icon}</span>
+                <span className="text-[10px] font-medium" style={{ color: isActive ? '#00F5FF' : 'rgba(248,246,240,0.4)' }}>{t(item.labelKey)}</span>
+              </button>
+            );
+          })}
         </div>
       </nav>
     </>

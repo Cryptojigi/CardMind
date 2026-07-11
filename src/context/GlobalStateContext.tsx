@@ -24,7 +24,31 @@ const GlobalStateContext = createContext<GlobalState | undefined>(undefined);
 
 export function GlobalStateProvider({ children }: { children: ReactNode }) {
   const [portfolio, setPortfolio] = useState<Card[]>([]);
-  const [activeScan, setActiveScan] = useState<Card | null>(null);
+  const [activeScan, setActiveScanState] = useState<Card | null>(() => {
+    const saved = localStorage.getItem('cardmind_activeScan');
+    if (saved) {
+      try {
+        const { card, timestamp } = JSON.parse(saved);
+        if (Date.now() - timestamp < 30 * 60 * 1000) { // 30 mins
+          return card;
+        } else {
+          localStorage.removeItem('cardmind_activeScan');
+        }
+      } catch (e) {
+        console.error("Failed to parse saved scan", e);
+      }
+    }
+    return null;
+  });
+
+  const setActiveScan = (card: Card | null) => {
+    setActiveScanState(card);
+    if (card) {
+      localStorage.setItem('cardmind_activeScan', JSON.stringify({ card, timestamp: Date.now() }));
+    } else {
+      localStorage.removeItem('cardmind_activeScan');
+    }
+  };
   const [recentScans, setRecentScans] = useState<Card[]>([]);
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);

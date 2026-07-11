@@ -1,5 +1,6 @@
 import Logo from '../components/Logo';
 import Typewriter from 'typewriter-effect';
+import { useLanguage } from '../context/LanguageContext';
 
 type Screen = 'landing' | 'dashboard' | 'scanner' | 'results' | 'portfolio' | 'chat' | 'market';
 
@@ -49,28 +50,30 @@ const cards = [
   },
 ];
 
-const steps = [
-  {
-    num: '01',
-    title: 'Scan Your Card',
-    desc: 'Upload a photo or use live camera. Our multi-agent AI instantly identifies the card, grade, and PSA certification.',
-    icon: '⊙',
-  },
-  {
-    num: '02',
-    title: 'Get Instant Valuation',
-    desc: 'Real-time market analysis powered by the Renaiss Index API. Confidence scores, price history, and liquidity signals.',
-    icon: '◈',
-  },
-  {
-    num: '03',
-    title: 'Decide Smarter',
-    desc: 'AI-generated Buy/Hold/Sell recommendations with transparent reasoning. Build your portfolio with conviction.',
-    icon: '✦',
-  },
-];
-
 export default function LandingPage({ onNavigate }: Props) {
+  const { t } = useLanguage();
+
+  const steps = [
+    {
+      num: '01',
+      title: t('landing.howItWorks.step1Title'),
+      desc: t('landing.howItWorks.step1Desc'),
+      icon: '⊙',
+    },
+    {
+      num: '02',
+      title: t('landing.howItWorks.step2Title'),
+      desc: t('landing.howItWorks.step2Desc'),
+      icon: '◈',
+    },
+    {
+      num: '03',
+      title: t('landing.howItWorks.step3Title'),
+      desc: t('landing.howItWorks.step3Desc'),
+      icon: '✦',
+    },
+  ];
+
   return (
     <div className="min-h-screen" style={{ background: '#0A0F1C' }}>
       {/* Ambient background */}
@@ -90,17 +93,17 @@ export default function LandingPage({ onNavigate }: Props) {
             <div className="z-10 animate-fade-up">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 text-xs font-semibold tracking-widest uppercase" style={{ background: 'rgba(0,245,255,0.1)', border: '1px solid rgba(0,245,255,0.3)', color: '#00F5FF' }}>
                 <span className="w-2 h-2 rounded-full bg-[#00F5FF] animate-pulse inline-block" />
-                Powered by Renaiss Index API (Beta)
+                {t('landing.poweredBy')}
               </div>
 
               <h1 className="text-4xl md:text-6xl font-black leading-[1.05] mb-4" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.02em' }}>
-                <span className="text-[#F8F6F0]">The AI Brain</span>
+                <span className="text-[#F8F6F0]">{t('landing.theAIBrain')}</span>
                 <br />
-                <span className="gradient-text">for Your</span>
+                <span className="gradient-text">{t('landing.forYour')}</span>
                 <span className="text-[#F8F6F0]">
                   <Typewriter
                     options={{
-                      strings: ['Card Collection', 'Pokémon Cards', 'Trading Cards'],
+                      strings: [t('landing.typewriter.cardCollection'), t('landing.typewriter.pokemonCards'), t('landing.typewriter.tradingCards')],
                       autoStart: true,
                       loop: true,
                       delay: 50,
@@ -111,7 +114,7 @@ export default function LandingPage({ onNavigate }: Props) {
               </h1>
 
               <p className="text-lg md:text-xl mb-8 leading-relaxed max-w-xl" style={{ color: 'rgba(248,246,240,0.65)', fontFamily: 'Poppins, sans-serif' }}>
-                Scan, value, and trade PSA-graded Pokémon cards with multi-agent AI. Instant valuations, Renaiss ecosystem signals, and smarter decisions — all in one platform.
+                {t('landing.subtitle')}
               </p>
 
               <div className="flex gap-3 sm:gap-4 w-full">
@@ -125,7 +128,7 @@ export default function LandingPage({ onNavigate }: Props) {
                     fontFamily: 'Poppins, sans-serif',
                   }}
                 >
-                  Launch App →
+                  {t('landing.launchApp')}
                 </button>
                 <button
                   onClick={() => onNavigate('scanner')}
@@ -137,24 +140,24 @@ export default function LandingPage({ onNavigate }: Props) {
                     fontFamily: 'Poppins, sans-serif',
                   }}
                 >
-                  Scan a Card
+                  {t('landing.scanCard')}
                 </button>
               </div>
 
               <div className="mt-8 flex items-center gap-6">
                 <div className="text-center">
                   <div className="text-2xl font-black text-[#00F5FF]">12,400+</div>
-                  <div className="text-xs text-[#F8F6F0] opacity-50 font-medium">Cards Valued</div>
+                  <div className="text-xs text-[#F8F6F0] opacity-50 font-medium">{t('landing.stats.cardsValued')}</div>
                 </div>
                 <div className="w-px h-10 bg-white opacity-10" />
                 <div className="text-center">
                   <div className="text-2xl font-black text-[#FF00E5]">$48M+</div>
-                  <div className="text-xs text-[#F8F6F0] opacity-50 font-medium">Portfolio Tracked</div>
+                  <div className="text-xs text-[#F8F6F0] opacity-50 font-medium">{t('landing.stats.portfolioTracked')}</div>
                 </div>
                 <div className="w-px h-10 bg-white opacity-10" />
                 <div className="text-center">
                   <div className="text-2xl font-black text-[#F8F6F0]">94%</div>
-                  <div className="text-xs text-[#F8F6F0] opacity-50 font-medium">Accuracy Rate</div>
+                  <div className="text-xs text-[#F8F6F0] opacity-50 font-medium">{t('landing.stats.accuracyRate')}</div>
                 </div>
               </div>
             </div>
@@ -219,7 +222,7 @@ export default function LandingPage({ onNavigate }: Props) {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-8">
             <h2 className="text-4xl md:text-5xl font-black text-[#F8F6F0]" style={{ fontFamily: 'Poppins, sans-serif' }}>
-              How CardMind <span className="gradient-text">AI</span> Works
+              {t('landing.howItWorks.title1')}<span className="gradient-text">{t('landing.howItWorks.title2')}</span>{t('landing.howItWorks.title3')}
             </h2>
           </div>
 
@@ -259,10 +262,10 @@ export default function LandingPage({ onNavigate }: Props) {
             }}
           >
             <h2 className="text-4xl md:text-5xl font-black text-[#F8F6F0] mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>
-              Ready to Collect <span className="gradient-text">Smarter?</span>
+              {t('landing.cta.title1')} <span className="gradient-text">{t('landing.cta.title2')}</span>
             </h2>
             <p className="text-lg mb-8 max-w-xl mx-auto" style={{ color: 'rgba(248,246,240,0.6)' }}>
-              Join thousands of collectors using CardMind AI to make data-driven decisions in the PSA Pokémon market.
+              {t('landing.cta.desc')}
             </p>
             <button
               onClick={() => onNavigate('dashboard')}
@@ -273,7 +276,7 @@ export default function LandingPage({ onNavigate }: Props) {
                 fontFamily: 'Poppins, sans-serif',
               }}
             >
-              Launch CardMind AI →
+              {t('landing.cta.btn')}
             </button>
           </div>
         </div>
@@ -285,14 +288,14 @@ export default function LandingPage({ onNavigate }: Props) {
           <Logo size="sm" />
           <div className="text-center">
             <div className="text-xs font-semibold mb-1" style={{ color: 'rgba(0,245,255,0.7)' }}>
-              Powered by Renaiss Index API (Beta)
+              {t('landing.footer.poweredBy')}
             </div>
             <div className="text-[10px]" style={{ color: 'rgba(248,246,240,0.3)' }}>
-              For informational purposes only. Not financial advice. Market data may be delayed.
+              {t('landing.footer.disclaimer')}
             </div>
           </div>
           <div className="text-xs" style={{ color: 'rgba(248,246,240,0.3)' }}>
-            © 2026 CardMind AI. All rights reserved.
+            {t('landing.footer.copyright')}
           </div>
         </div>
       </footer>

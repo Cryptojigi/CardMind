@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useGlobalState } from '../context/GlobalStateContext';
+import { useLanguage } from '../context/LanguageContext';
 
 type Screen = 'landing' | 'dashboard' | 'scanner' | 'results' | 'portfolio' | 'chat' | 'market';
 interface Props { onNavigate: (s: Screen) => void; }
@@ -29,12 +30,13 @@ const recColor = (r: string) => r === 'buy' ? '#00E676' : r === 'sell' ? '#FF444
 
 export default function Portfolio({ onNavigate }: Props) {
   const { portfolio, setActiveScan, recentScans, addCardToPortfolio, isWalletConnected, connectWallet } = useGlobalState();
+  const { t } = useLanguage();
   const [view, setView] = useState<'grid' | 'table'>('grid');
   const [filter, setFilter] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [addTab, setAddTab] = useState<'scanned' | 'wallet'>('scanned');
 
-  const filtered = filter === 'all' ? portfolio : portfolio.filter(c => c.recommendation === filter);
+  const filtered = filter === 'all' ? portfolio : portfolio.filter(c => c.recommendation.toLowerCase() === filter.toLowerCase());
 
   // Dynamic calculations
   const stats = useMemo(() => {
@@ -70,9 +72,9 @@ export default function Portfolio({ onNavigate }: Props) {
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 relative">
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: '#00F5FF' }}>My Collection</div>
+          <div className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: '#00F5FF' }}>{t('portfolio.header.subtitle')}</div>
           <h1 className="text-3xl md:text-4xl font-black text-[#F8F6F0]" style={{ fontFamily: 'Poppins, sans-serif' }}>
-            Portfolio <span className="gradient-text">Intelligence</span>
+            {t('portfolio.header.title1')}<span className="gradient-text">{t('portfolio.header.title2')}</span>
           </h1>
         </div>
         <button
@@ -80,7 +82,7 @@ export default function Portfolio({ onNavigate }: Props) {
           className="px-6 py-3 rounded-full font-semibold text-sm self-start"
           style={{ background: 'linear-gradient(135deg, #00F5FF, #FF00E5)', color: '#0A0F1C' }}
         >
-          + Add Card
+          {t('portfolio.header.addBtn')}
         </button>
       </div>
 
@@ -88,13 +90,13 @@ export default function Portfolio({ onNavigate }: Props) {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowAddModal(false)}>
           <div className="w-full max-w-xl rounded-2xl p-6" style={{ background: 'rgba(10,15,28,0.95)', border: '1px solid rgba(0,245,255,0.2)' }} onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-[#F8F6F0]">Add to Portfolio</h2>
+              <h2 className="text-xl font-bold text-[#F8F6F0]">{t('portfolio.addModal.title')}</h2>
               <button onClick={() => setShowAddModal(false)} className="text-[#F8F6F0] opacity-50 hover:opacity-100">✕</button>
             </div>
             
             <div className="flex gap-4 mb-6 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-              <button onClick={() => setAddTab('scanned')} className={`pb-2 text-sm font-semibold transition-colors ${addTab === 'scanned' ? 'text-[#00F5FF] border-b-2 border-[#00F5FF]' : 'text-[#F8F6F0] opacity-50 hover:opacity-100'}`}>Recent Scans</button>
-              <button onClick={() => setAddTab('wallet')} className={`pb-2 text-sm font-semibold transition-colors ${addTab === 'wallet' ? 'text-[#FF00E5] border-b-2 border-[#FF00E5]' : 'text-[#F8F6F0] opacity-50 hover:opacity-100'}`}>Wallet Holdings</button>
+              <button onClick={() => setAddTab('scanned')} className={`pb-2 text-sm font-semibold transition-colors ${addTab === 'scanned' ? 'text-[#00F5FF] border-b-2 border-[#00F5FF]' : 'text-[#F8F6F0] opacity-50 hover:opacity-100'}`}>{t('portfolio.addModal.tabScans')}</button>
+              <button onClick={() => setAddTab('wallet')} className={`pb-2 text-sm font-semibold transition-colors ${addTab === 'wallet' ? 'text-[#FF00E5] border-b-2 border-[#FF00E5]' : 'text-[#F8F6F0] opacity-50 hover:opacity-100'}`}>{t('portfolio.addModal.tabWallet')}</button>
             </div>
 
             <div className="max-h-[300px] overflow-y-auto pr-2">
@@ -107,21 +109,21 @@ export default function Portfolio({ onNavigate }: Props) {
                           <div className="text-sm font-bold text-[#F8F6F0]">{card.name}</div>
                           <div className="text-[10px]" style={{ color: 'rgba(248,246,240,0.5)' }}>{card.grader} {card.grade}</div>
                         </div>
-                        <button onClick={() => addCardToPortfolio(card)} className="px-4 py-1.5 rounded-lg text-xs font-bold transition-all hover:scale-105" style={{ background: 'rgba(0,245,255,0.1)', color: '#00F5FF', border: '1px solid rgba(0,245,255,0.3)' }}>+ Add</button>
+                        <button onClick={() => addCardToPortfolio(card)} className="px-4 py-1.5 rounded-lg text-xs font-bold transition-all hover:scale-105" style={{ background: 'rgba(0,245,255,0.1)', color: '#00F5FF', border: '1px solid rgba(0,245,255,0.3)' }}>{t('portfolio.addModal.btnAdd')}</button>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 opacity-50 text-sm">No recent scans available to add.</div>
+                  <div className="text-center py-8 opacity-50 text-sm">{t('portfolio.addModal.noScans')}</div>
                 )
               ) : (
                 !isWalletConnected ? (
                   <div className="text-center py-8">
-                    <div className="mb-4 text-sm opacity-60">Connect your web3 wallet to sync tokenized card holdings.</div>
-                    <button onClick={() => { connectWallet(); setAddTab('wallet'); }} className="px-6 py-2 rounded-full text-sm font-bold transition-all hover:scale-105" style={{ background: 'rgba(255,0,229,0.1)', color: '#FF00E5', border: '1px solid rgba(255,0,229,0.3)' }}>Connect Wallet</button>
+                    <div className="mb-4 text-sm opacity-60">{t('portfolio.addModal.walletConnectText')}</div>
+                    <button onClick={() => { connectWallet(); setAddTab('wallet'); }} className="px-6 py-2 rounded-full text-sm font-bold transition-all hover:scale-105" style={{ background: 'rgba(255,0,229,0.1)', color: '#FF00E5', border: '1px solid rgba(255,0,229,0.3)' }}>{t('portfolio.addModal.walletConnectBtn')}</button>
                   </div>
                 ) : (
-                  <div className="text-center py-8 opacity-50 text-sm">Wallet synced! No tokenized cards found in this wallet.</div>
+                  <div className="text-center py-8 opacity-50 text-sm">{t('portfolio.addModal.walletSyncedEmpty')}</div>
                 )
               )}
             </div>
@@ -132,10 +134,10 @@ export default function Portfolio({ onNavigate }: Props) {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Total Value', value: `$${stats.totalValue.toLocaleString()}`, color: '#00F5FF', icon: '◈' },
-          { label: 'Total Cost', value: `$${stats.totalCost.toLocaleString()}`, color: 'rgba(248,246,240,0.7)', icon: '⬡' },
-          { label: 'Total Gain', value: `${stats.totalGain >= 0 ? '+' : '-'}$${Math.abs(stats.totalGain).toLocaleString()}`, color: stats.totalGain >= 0 ? '#00E676' : '#FF4444', icon: '▲' },
-          { label: 'ROI', value: `${stats.totalGain >= 0 ? '+' : ''}${stats.totalGainPercent}%`, color: '#FF00E5', icon: '◉' },
+          { label: t('portfolio.stats.totalValue'), value: `$${stats.totalValue.toLocaleString()}`, color: '#00F5FF', icon: '◈' },
+          { label: t('portfolio.stats.totalCost'), value: `$${stats.totalCost.toLocaleString()}`, color: 'rgba(248,246,240,0.7)', icon: '⬡' },
+          { label: t('portfolio.stats.totalGain'), value: `${stats.totalGain >= 0 ? '+' : '-'}$${Math.abs(stats.totalGain).toLocaleString()}`, color: stats.totalGain >= 0 ? '#00E676' : '#FF4444', icon: '▲' },
+          { label: t('portfolio.stats.roi'), value: `${stats.totalGain >= 0 ? '+' : ''}${stats.totalGainPercent}%`, color: '#FF00E5', icon: '◉' },
         ].map((stat) => (
           <div key={stat.label} className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div className="text-xl font-bold mb-0.5" style={{ color: stat.color }}>{stat.icon}</div>
@@ -149,7 +151,7 @@ export default function Portfolio({ onNavigate }: Props) {
       <div className="grid md:grid-cols-3 gap-4 mb-8">
         {/* Performance Chart */}
         <div className="md:col-span-2 rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <div className="text-sm font-bold text-[#F8F6F0] mb-4">Portfolio Value (7 Months)</div>
+          <div className="text-sm font-bold text-[#F8F6F0] mb-4">{t('portfolio.charts.perfTitle')}</div>
           <ResponsiveContainer width="100%" height={160}>
             <LineChart data={performanceData}>
               <defs>
@@ -168,7 +170,7 @@ export default function Portfolio({ onNavigate }: Props) {
 
         {/* Diversification */}
         <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <div className="text-sm font-bold text-[#F8F6F0] mb-3">Diversification</div>
+          <div className="text-sm font-bold text-[#F8F6F0] mb-3">{t('portfolio.charts.divTitle')}</div>
           <div className="flex justify-center mb-3">
             <PieChart width={130} height={130}>
               <Pie data={pieData} cx={65} cy={65} innerRadius={40} outerRadius={60} dataKey="value" strokeWidth={0}>
@@ -194,14 +196,14 @@ export default function Portfolio({ onNavigate }: Props) {
       <div className="rounded-2xl p-5 mb-6" style={{ background: 'linear-gradient(135deg, rgba(255,0,229,0.06), rgba(0,245,255,0.06))', border: '1px solid rgba(255,0,229,0.2)' }}>
         <div className="flex items-center gap-2 mb-3">
           <span className="text-lg">✦</span>
-          <span className="text-sm font-bold text-[#F8F6F0]">AI Portfolio Insights</span>
-          <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,0,229,0.2)', color: '#FF00E5' }}>Smart Analysis</span>
+          <span className="text-sm font-bold text-[#F8F6F0]">{t('portfolio.aiInsights.title')}</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,0,229,0.2)', color: '#FF00E5' }}>{t('portfolio.aiInsights.badge')}</span>
         </div>
         <div className="grid md:grid-cols-3 gap-3">
           {[
-            { insight: 'Charizard PSA 10 represents 54% of portfolio. Consider rebalancing for risk management.', type: 'warning', icon: '⚠' },
-            { insight: 'Rayquaza Gold Star shows highest momentum (+8.9%). Renaiss signals strongly bullish.', type: 'positive', icon: '🚀' },
-            { insight: 'Your portfolio outperformed the market index by 12.4% over the last 6 months.', type: 'positive', icon: '✓' },
+            { insight: t('portfolio.aiInsights.i1'), type: 'warning', icon: '⚠' },
+            { insight: t('portfolio.aiInsights.i2'), type: 'positive', icon: '🚀' },
+            { insight: t('portfolio.aiInsights.i3'), type: 'positive', icon: '✓' },
           ].map((item, i) => (
             <div key={i} className="text-xs p-3 rounded-xl" style={{
               background: item.type === 'positive' ? 'rgba(0,230,118,0.08)' : 'rgba(255,184,0,0.08)',
@@ -229,7 +231,7 @@ export default function Portfolio({ onNavigate }: Props) {
                   color: filter === f ? '#00F5FF' : 'rgba(248,246,240,0.6)',
                 }}
               >
-                {f}
+                {t(`portfolio.filters.${f}`)}
               </button>
             ))}
           </div>
@@ -260,7 +262,7 @@ export default function Portfolio({ onNavigate }: Props) {
                   {card.image ? (
                     <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-sm font-bold text-gray-500">No Image</span>
+                    <span className="text-sm font-bold text-gray-500">{t('portfolio.grid.noImage')}</span>
                   )}
                   {card.grade && card.grade !== 'Ungraded' && (
                     <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-black" style={{ background: 'rgba(0,245,255,0.9)', color: '#0A0F1C' }}>
@@ -274,9 +276,9 @@ export default function Portfolio({ onNavigate }: Props) {
                 <div className="text-[10px] mt-0.5 font-semibold" style={{ color: card.changePercent30d >= 0 ? '#00E676' : '#FF4444' }}>
                   {card.changePercent30d >= 0 ? '▲' : '▼'} {Math.abs(card.changePercent30d)}%
                 </div>
-                <div className="mt-2 px-2 py-0.5 rounded-full text-[9px] font-bold text-center"
-                  style={{ background: recBg(card.recommendation), color: recColor(card.recommendation) }}>
-                  {card.recommendation.toUpperCase()}
+                <div className="mt-2 px-2 py-0.5 rounded-full text-[9px] font-bold text-center uppercase"
+                  style={{ background: recBg(card.recommendation.toLowerCase()), color: recColor(card.recommendation.toLowerCase()) }}>
+                  {t(`dashboard.stats.${card.recommendation.toLowerCase()}`)}
                 </div>
               </div>
             ))}
@@ -286,8 +288,16 @@ export default function Portfolio({ onNavigate }: Props) {
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                  {['Card', 'Grade', 'Current Value', '30d Change', 'P&L', 'Renaiss', 'Signal'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: 'rgba(248,246,240,0.5)' }}>{h}</th>
+                  {[
+                    t('portfolio.table.card'), 
+                    t('portfolio.table.grade'), 
+                    t('portfolio.table.currentValue'), 
+                    t('portfolio.table.change30d'), 
+                    t('portfolio.table.pnl'), 
+                    t('portfolio.table.renaiss'), 
+                    t('portfolio.table.signal')
+                  ].map((h, idx) => (
+                    <th key={idx} className="px-4 py-3 text-left text-xs font-semibold" style={{ color: 'rgba(248,246,240,0.5)' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -309,11 +319,11 @@ export default function Portfolio({ onNavigate }: Props) {
                       +${(card.currentValue - card.purchasePrice).toLocaleString()}
                     </td>
                     <td className="px-4 py-3 text-xs capitalize font-semibold" style={{ color: signalColor(card.renaisssSignal) }}>
-                      {card.renaisssSignal}
+                      {t(`dashboard.stats.${card.renaisssSignal}`)}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase" style={{ background: recBg(card.recommendation), color: recColor(card.recommendation) }}>
-                        {card.recommendation}
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase" style={{ background: recBg(card.recommendation.toLowerCase()), color: recColor(card.recommendation.toLowerCase()) }}>
+                        {t(`dashboard.stats.${card.recommendation.toLowerCase()}`)}
                       </span>
                     </td>
                   </tr>
@@ -327,7 +337,7 @@ export default function Portfolio({ onNavigate }: Props) {
       <div className="mt-6 p-4 rounded-xl flex items-start gap-3" style={{ background: 'rgba(0,245,255,0.05)', border: '1px solid rgba(0,245,255,0.15)' }}>
         <span style={{ color: '#00F5FF', fontSize: 16 }}>◉</span>
         <div className="text-[11px]" style={{ color: 'rgba(248,246,240,0.45)' }}>
-          <strong className="text-[#F8F6F0]">Powered by Renaiss Index API (Public)</strong> — Portfolio signals and valuations are for informational purposes only. Past performance does not guarantee future results. Not financial advice.
+          <strong className="text-[#F8F6F0]">{t('portfolio.disclaimer.strong')}</strong>{t('portfolio.disclaimer.text')}
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { useGlobalState } from '../context/GlobalStateContext';
 import { portfolioStats } from '../data/mockData';
 import Logo from '../components/Logo';
+import { useLanguage } from '../context/LanguageContext';
 
 type Screen = 'landing' | 'dashboard' | 'scanner' | 'results' | 'portfolio' | 'chat' | 'market';
 interface Props { onNavigate: (s: Screen) => void; }
@@ -22,6 +23,7 @@ const recColor = (r: string) => r === 'buy' ? '#00E676' : r === 'sell' ? '#FF444
 
 export default function Dashboard({ onNavigate }: Props) {
   const { recentScans } = useGlobalState();
+  const { t } = useLanguage();
   const totalGain = portfolioStats.totalGain;
   const gainPositive = totalGain >= 0;
 
@@ -41,10 +43,10 @@ export default function Dashboard({ onNavigate }: Props) {
             <Logo size="md" />
           </div>
           <h1 className="text-3xl md:text-5xl font-black text-[#F8F6F0] mb-3 leading-tight" style={{ fontFamily: 'Poppins, sans-serif' }}>
-            Scan. Value. <span className="gradient-text">Decide Smarter.</span>
+            {t('dashboard.hero.title1')} <span className="gradient-text">{t('dashboard.hero.title2')}</span>
           </h1>
           <p className="text-base md:text-lg mb-8 max-w-xl" style={{ color: 'rgba(248,246,240,0.6)', fontFamily: 'Poppins, sans-serif' }}>
-            Your multi-agent AI assistant for PSA-graded Pokémon card valuations, portfolio intelligence, and Renaiss ecosystem signals.
+            {t('dashboard.hero.subtitle')}
           </p>
           <div className="flex gap-3 sm:gap-4 w-full">
             <button
@@ -52,14 +54,14 @@ export default function Dashboard({ onNavigate }: Props) {
               className="flex-1 px-2 sm:px-8 py-3 sm:py-3.5 rounded-full font-bold text-sm sm:text-base transition-all duration-300 hover:scale-105 whitespace-nowrap"
               style={{ background: 'linear-gradient(135deg, #00F5FF, #FF00E5)', color: '#0A0F1C', boxShadow: '0 0 30px rgba(0,245,255,0.4)', fontFamily: 'Poppins, sans-serif' }}
             >
-              ⊙ Scan a Card
+              {t('dashboard.hero.scanBtn')}
             </button>
             <button
               onClick={() => onNavigate('portfolio')}
               className="flex-1 px-2 sm:px-8 py-3 sm:py-3.5 rounded-full font-semibold text-sm sm:text-base transition-all duration-300 hover:scale-105 whitespace-nowrap"
               style={{ background: 'rgba(248,246,240,0.06)', border: '1px solid rgba(248,246,240,0.2)', color: '#F8F6F0', fontFamily: 'Poppins, sans-serif' }}
             >
-              ◈ My Portfolio
+              {t('dashboard.hero.portfolioBtn')}
             </button>
           </div>
         </div>
@@ -68,23 +70,23 @@ export default function Dashboard({ onNavigate }: Props) {
       {/* Quick Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <StatCard
-          label="Total Portfolio Value"
+          label={t('dashboard.stats.totalValue')}
           value={`$${portfolioStats.totalValue.toLocaleString()}`}
           sub={`+${portfolioStats.totalGainPercent}%`}
           color="#00F5FF"
           icon="◈"
         />
         <StatCard
-          label="Cards Tracked"
+          label={t('dashboard.stats.cardsTracked')}
           value={portfolioStats.totalCards.toString()}
-          sub="PSA Graded"
+          sub={t('dashboard.stats.psaGraded')}
           color="#FF00E5"
           icon="⬡"
         />
         <StatCard
-          label="Renaiss Signal Strength"
+          label={t('dashboard.stats.signalStrength')}
           value={`${portfolioStats.renaisssSignalStrength}%`}
-          sub="Bullish"
+          sub={t('dashboard.stats.bullish')}
           color="#00E676"
           icon="◉"
         />
@@ -93,12 +95,12 @@ export default function Dashboard({ onNavigate }: Props) {
       {/* Recent Scans */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xl font-bold text-[#F8F6F0]" style={{ fontFamily: 'Poppins, sans-serif' }}>Recent Scans</h2>
-          <button onClick={() => onNavigate('portfolio')} className="text-sm font-medium" style={{ color: '#00F5FF' }}>View All →</button>
+          <h2 className="text-xl font-bold text-[#F8F6F0]" style={{ fontFamily: 'Poppins, sans-serif' }}>{t('dashboard.recentScans.title')}</h2>
+          <button onClick={() => onNavigate('portfolio')} className="text-sm font-medium" style={{ color: '#00F5FF' }}>{t('dashboard.recentScans.viewAll')}</button>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none' }}>
           {recentScans.length === 0 ? (
-            <div className="text-sm" style={{ color: 'rgba(248,246,240,0.5)' }}>No recent scans yet. Scan a card to see it here.</div>
+            <div className="text-sm" style={{ color: 'rgba(248,246,240,0.5)' }}>{t('dashboard.recentScans.empty')}</div>
           ) : (
             recentScans.map((card) => (
               <div
@@ -119,7 +121,7 @@ export default function Dashboard({ onNavigate }: Props) {
                     <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-gray-800">
-                      <span className="text-sm font-bold text-gray-500">No Image</span>
+                      <span className="text-sm font-bold text-gray-500">{t('dashboard.recentScans.noImage')}</span>
                     </div>
                   )}
                 {/* PSA badge */}
@@ -140,7 +142,7 @@ export default function Dashboard({ onNavigate }: Props) {
               </div>
               <div className="mt-2 px-2 py-0.5 rounded-full text-[9px] font-bold text-center"
                 style={{ background: `${recColor(card.recommendation)}18`, color: recColor(card.recommendation), border: `1px solid ${recColor(card.recommendation)}40` }}>
-                {card.recommendation.toUpperCase()}
+                {t(`dashboard.stats.${card.recommendation.toLowerCase()}`)?.toUpperCase() || card.recommendation.toUpperCase()}
               </div>
             </div>
           )))}
@@ -158,15 +160,15 @@ export default function Dashboard({ onNavigate }: Props) {
               <span style={{ color: '#00F5FF' }}>◉</span>
             </div>
             <div>
-              <div className="text-sm font-bold text-[#F8F6F0]">Renaiss Index API</div>
-              <div className="text-xs font-semibold" style={{ color: '#00F5FF' }}>Beta</div>
+              <div className="text-sm font-bold text-[#F8F6F0]">{t('dashboard.features.renaissApi')}</div>
+              <div className="text-xs font-semibold" style={{ color: '#00F5FF' }}>{t('dashboard.features.beta')}</div>
             </div>
           </div>
           <p className="text-sm mb-4" style={{ color: 'rgba(248,246,240,0.6)' }}>
-            Real-time on-chain marketplace signals, liquidity scores, and ecosystem activity from the Renaiss platform — integrated directly into every card valuation.
+            {t('dashboard.features.renaissDesc')}
           </p>
           <div className="text-[10px] font-medium p-3 rounded-lg" style={{ background: 'rgba(255,184,0,0.08)', border: '1px solid rgba(255,184,0,0.2)', color: 'rgba(255,184,0,0.8)' }}>
-            ⚠ Renaiss API data is in beta. Values are for informational purposes only and do not constitute financial advice.
+            {t('dashboard.features.renaissWarning')}
           </div>
         </div>
 
@@ -176,12 +178,12 @@ export default function Dashboard({ onNavigate }: Props) {
           style={{ background: 'linear-gradient(135deg, rgba(255,0,229,0.08), rgba(0,245,255,0.08))', border: '1px solid rgba(255,0,229,0.2)' }}
         >
           <div className="text-3xl mb-3">✦</div>
-          <h3 className="text-lg font-bold text-[#F8F6F0] mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>AI Advisor Chat</h3>
+          <h3 className="text-lg font-bold text-[#F8F6F0] mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>{t('dashboard.features.aiChat')}</h3>
           <p className="text-sm mb-4" style={{ color: 'rgba(248,246,240,0.6)' }}>
-            Ask anything about your collection. Our multi-agent AI pulls live market data, portfolio context, and Renaiss signals to give you personalized advice.
+            {t('dashboard.features.aiChatDesc')}
           </p>
           <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: '#FF00E5' }}>
-            Start Chatting →
+            {t('dashboard.features.startChatting')}
           </div>
         </div>
       </div>

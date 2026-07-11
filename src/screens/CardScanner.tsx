@@ -1,21 +1,23 @@
 import { useState, useRef } from 'react';
 import { useGlobalState } from '../context/GlobalStateContext';
 import { scanCardImage, scanCardByCert, scanCardByTokenId } from '../services/renaissApi';
+import { useLanguage } from '../context/LanguageContext';
 
 type Screen = 'landing' | 'dashboard' | 'scanner' | 'results' | 'portfolio' | 'chat' | 'market';
 interface Props { onNavigate: (s: Screen) => void; }
 
 type ScanState = 'idle' | 'processing' | 'done';
 
-const agents = [
-  { name: 'Card ID Agent', task: 'Identifying card name, set, and variant...', done: false },
-  { name: 'Grade Verifier', task: 'Reading PSA certification number...', done: false },
-  { name: 'Market Agent', task: 'Pulling real-time price data...', done: false },
-  { name: 'Renaiss Agent', task: 'Fetching ecosystem signals...', done: false },
-  { name: 'Valuation Agent', task: 'Generating confidence-weighted valuation...', done: false },
-];
-
 export default function CardScanner({ onNavigate }: Props) {
+  const { t } = useLanguage();
+
+  const agents = [
+    { name: t('scanner.agents.cardId.name'), task: t('scanner.agents.cardId.task'), done: false },
+    { name: t('scanner.agents.gradeVerifier.name'), task: t('scanner.agents.gradeVerifier.task'), done: false },
+    { name: t('scanner.agents.marketAgent.name'), task: t('scanner.agents.marketAgent.task'), done: false },
+    { name: t('scanner.agents.renaissAgent.name'), task: t('scanner.agents.renaissAgent.task'), done: false },
+    { name: t('scanner.agents.valuationAgent.name'), task: t('scanner.agents.valuationAgent.task'), done: false },
+  ];
   const [scanState, setScanState] = useState<ScanState>('idle');
   const [dragging, setDragging] = useState(false);
   const [agentProgress, setAgentProgress] = useState(0);
@@ -91,10 +93,10 @@ export default function CardScanner({ onNavigate }: Props) {
       <div className="mb-8">
         <div className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: '#00F5FF' }}>Card Scanner</div>
         <h1 className="text-3xl md:text-4xl font-black text-[#F8F6F0]" style={{ fontFamily: 'Poppins, sans-serif' }}>
-          Scan Your <span className="gradient-text">Graded Card</span>
+          {t('scanner.title1')} <span className="gradient-text">{t('scanner.title2')}</span>
         </h1>
         <p className="mt-2 text-base" style={{ color: 'rgba(248,246,240,0.55)' }}>
-          Upload a photo of your PSA-graded Pokémon card slab for instant AI-powered valuation.
+          {t('scanner.subtitle')}
         </p>
       </div>
 
@@ -123,13 +125,13 @@ export default function CardScanner({ onNavigate }: Props) {
             </div>
 
             <h3 className="text-xl font-bold text-[#F8F6F0] mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
-              Drop your card image here
+              {t('scanner.dropzone.title')}
             </h3>
             <p className="text-sm mb-2" style={{ color: 'rgba(248,246,240,0.5)' }}>
-              or click to browse files
+              {t('scanner.dropzone.orClick')}
             </p>
             <p className="text-xs" style={{ color: 'rgba(248,246,240,0.35)' }}>
-              Supports JPG, PNG, WEBP — PSA slab photos work best
+              {t('scanner.dropzone.supports')}
             </p>
           </div>
 
@@ -143,8 +145,8 @@ export default function CardScanner({ onNavigate }: Props) {
               >
                 <span className="text-2xl">📁</span>
                 <div className="text-left">
-                  <div className="text-sm font-bold">Upload File</div>
-                  <div className="text-xs opacity-60">JPG / PNG</div>
+                  <div className="text-sm font-bold">{t('scanner.actions.uploadFile')}</div>
+                  <div className="text-xs opacity-60">{t('scanner.actions.jpgPng')}</div>
                 </div>
               </button>
               <button
@@ -154,8 +156,8 @@ export default function CardScanner({ onNavigate }: Props) {
               >
                 <span className="text-2xl">🔑</span>
                 <div className="text-left">
-                  <div className="text-sm font-bold">Token ID / PSA Cert Number</div>
-                  <div className="text-xs opacity-60">Enter manually</div>
+                  <div className="text-sm font-bold">{t('scanner.actions.manualEntry')}</div>
+                  <div className="text-xs opacity-60">{t('scanner.actions.enterManually')}</div>
                 </div>
               </button>
             </div>
@@ -163,15 +165,15 @@ export default function CardScanner({ onNavigate }: Props) {
             <div className="mb-8 p-6 rounded-2xl" style={{ background: 'rgba(248,246,240,0.04)', border: '1px solid rgba(248,246,240,0.15)' }}>
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm font-bold text-[#F8F6F0]">Enter Token ID or PSA Cert</div>
-                  <button onClick={() => setShowTokenInput(false)} className="text-xs opacity-60 hover:opacity-100" style={{ color: '#F8F6F0' }}>Cancel</button>
+                  <div className="text-sm font-bold text-[#F8F6F0]">{t('scanner.actions.enterTitle')}</div>
+                  <button onClick={() => setShowTokenInput(false)} className="text-xs opacity-60 hover:opacity-100" style={{ color: '#F8F6F0' }}>{t('scanner.actions.cancel')}</button>
                 </div>
                 <div className="flex gap-3">
                   <input
                     type="text"
                     value={tokenId}
                     onChange={(e) => setTokenId(e.target.value)}
-                    placeholder="e.g. 969156... or 12345678"
+                    placeholder={t('scanner.actions.placeholder')}
                     className="flex-1 bg-transparent border rounded-lg px-4 py-2 text-sm text-[#F8F6F0] outline-none focus:border-[#00F5FF] transition-colors"
                     style={{ borderColor: 'rgba(248,246,240,0.2)' }}
                   />
@@ -185,7 +187,7 @@ export default function CardScanner({ onNavigate }: Props) {
                     className="px-6 py-2 rounded-lg font-bold transition-all duration-300 disabled:opacity-50"
                     style={{ background: 'linear-gradient(135deg, #00F5FF, #FF00E5)', color: '#0A0F1C' }}
                   >
-                    Scan
+                    {t('scanner.actions.scanBtn')}
                   </button>
                 </div>
               </div>
@@ -194,7 +196,7 @@ export default function CardScanner({ onNavigate }: Props) {
 
           {/* Sample cards to scan */}
           <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <div className="text-sm font-bold text-[#F8F6F0] mb-4">Try with a sample card:</div>
+            <div className="text-sm font-bold text-[#F8F6F0] mb-4">{t('scanner.sampleCards.title')}</div>
             <div className="flex flex-wrap gap-3">
               {['Charizard PSA 10 Base Set', 'Lugia PSA 9 Neo Genesis', 'Rayquaza PSA 10 EX Deoxys'].map((name) => (
                 <button
@@ -230,10 +232,10 @@ export default function CardScanner({ onNavigate }: Props) {
           </div>
 
           <h3 className="text-xl font-bold text-center mb-2 text-[#F8F6F0]" style={{ fontFamily: 'Poppins, sans-serif' }}>
-            {scanState === 'done' ? '✓ Analysis Complete!' : 'Analyzing with AI agents...'}
+            {scanState === 'done' ? t('scanner.processing.analysisComplete') : t('scanner.processing.analyzing')}
           </h3>
           <p className="text-sm text-center mb-8" style={{ color: 'rgba(248,246,240,0.5)' }}>
-            {scanState === 'done' ? 'Redirecting to results...' : 'Our specialized agents are working together to value your card'}
+            {scanState === 'done' ? t('scanner.processing.redirecting') : t('scanner.processing.agentsWorking')}
           </p>
 
           {/* Agent progress */}
@@ -277,9 +279,9 @@ export default function CardScanner({ onNavigate }: Props) {
       <div className="mt-6 p-4 rounded-xl flex items-start gap-3" style={{ background: 'rgba(0,245,255,0.05)', border: '1px solid rgba(0,245,255,0.15)' }}>
         <span style={{ color: '#00F5FF', fontSize: 18 }}>◉</span>
         <div>
-          <div className="text-xs font-bold text-[#F8F6F0] mb-0.5">Powered by Renaiss Index API (Public)</div>
+          <div className="text-xs font-bold text-[#F8F6F0] mb-0.5">{t('scanner.footer.poweredBy')}</div>
           <div className="text-[11px]" style={{ color: 'rgba(248,246,240,0.45)' }}>
-            Valuations incorporate real-time Renaiss ecosystem signals, on-chain marketplace activity, and liquidity depth data. For informational purposes only.
+            {t('scanner.footer.disclaimer')}
           </div>
         </div>
       </div>

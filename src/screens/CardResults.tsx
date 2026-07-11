@@ -159,7 +159,7 @@ export default function CardResults({ onNavigate }: Props) {
               <div>
                 <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: 'rgba(248,246,240,0.5)' }}>{t('results.metrics.currentValue')}</div>
                 <div className="text-5xl font-black text-[#F8F6F0]" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                  ${card.currentValue.toLocaleString()}
+                  {card.currentValue ? `$${card.currentValue.toLocaleString()}` : 'N/A'}
                 </div>
               </div>
               <div className="text-right">
@@ -170,14 +170,14 @@ export default function CardResults({ onNavigate }: Props) {
             <div className="flex gap-4 mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               <div>
                 <div className="text-xs" style={{ color: 'rgba(248,246,240,0.45)' }}>{t('results.metrics.change30d')}</div>
-                <div className="text-sm font-bold" style={{ color: card.changePercent30d >= 0 ? '#00E676' : '#FF4444' }}>
-                  {card.changePercent30d >= 0 ? '+' : ''}{card.changePercent30d}% (${Math.abs(card.change30d).toLocaleString()})
+                <div className="text-sm font-bold" style={{ color: card.currentValue ? (card.changePercent30d >= 0 ? '#00E676' : '#FF4444') : 'rgba(248,246,240,0.5)' }}>
+                  {card.currentValue ? `${card.changePercent30d >= 0 ? '+' : ''}${card.changePercent30d}% ($${Math.abs(card.change30d).toLocaleString()})` : 'N/A'}
                 </div>
               </div>
               <div>
                 <div className="text-xs" style={{ color: 'rgba(248,246,240,0.45)' }}>{t('results.metrics.pnl')}</div>
-                <div className="text-sm font-bold" style={{ color: gainLoss >= 0 ? '#00E676' : '#FF4444' }}>
-                  {gainLoss >= 0 ? '+' : ''}${gainLoss.toLocaleString()} ({gainLossPct}%)
+                <div className="text-sm font-bold" style={{ color: card.currentValue ? (gainLoss >= 0 ? '#00E676' : '#FF4444') : 'rgba(248,246,240,0.5)' }}>
+                  {card.currentValue ? `${gainLoss >= 0 ? '+' : ''}$${gainLoss.toLocaleString()} (${gainLossPct}%)` : 'N/A'}
                 </div>
               </div>
               <div>
@@ -190,35 +190,41 @@ export default function CardResults({ onNavigate }: Props) {
           {/* Price Chart */}
           <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div className="text-sm font-bold text-[#F8F6F0] mb-4">{t('results.metrics.priceHistory')}</div>
-            <ResponsiveContainer width="100%" height={150}>
-              <AreaChart data={card.priceHistory}>
-                <defs>
-                  <linearGradient id="priceGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#00F5FF" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#00F5FF" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'rgba(248,246,240,0.4)' }} axisLine={false} tickLine={false} />
-                <YAxis hide domain={['auto', 'auto']} />
-                <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="value" stroke="#00F5FF" strokeWidth={2} fill="url(#priceGrad)" dot={false} />
-              </AreaChart>
-            </ResponsiveContainer>
+            {(!card.priceHistory || card.priceHistory.length === 0) ? (
+              <div className="flex items-center justify-center h-[150px] text-sm" style={{ color: 'rgba(248,246,240,0.4)' }}>
+                {t('results.metrics.noPriceHistory') || 'price history not available for this card'}
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={150}>
+                <AreaChart data={card.priceHistory}>
+                  <defs>
+                    <linearGradient id="priceGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#00F5FF" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#00F5FF" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'rgba(248,246,240,0.4)' }} axisLine={false} tickLine={false} />
+                  <YAxis hide domain={['auto', 'auto']} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Area type="monotone" dataKey="value" stroke="#00F5FF" strokeWidth={2} fill="url(#priceGrad)" dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
 
           {/* Key Metrics Grid */}
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="text-xs mb-1" style={{ color: 'rgba(248,246,240,0.5)' }}>{t('results.metrics.rarity')}</div>
-              <div className="text-sm font-bold text-[#F8F6F0]">{card.rarity}</div>
+              <div className="text-sm font-bold text-[#F8F6F0]">{card.rarity || 'N/A'}</div>
             </div>
             <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="text-xs mb-1" style={{ color: 'rgba(248,246,240,0.5)' }}>{t('results.metrics.liquidityScore')}</div>
-              <div className="text-sm font-bold text-[#00F5FF]">{card.liquidityScore}/100</div>
+              <div className="text-sm font-bold text-[#00F5FF]">{card.liquidityScore ? `${card.liquidityScore}/100` : 'N/A'}</div>
             </div>
             <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="text-xs mb-1" style={{ color: 'rgba(248,246,240,0.5)' }}>{t('results.metrics.popHigher')}</div>
-              <div className="text-sm font-bold text-[#F8F6F0]">{card.popHigher === 0 ? t('results.metrics.noneApex') : card.popHigher}</div>
+              <div className="text-sm font-bold text-[#F8F6F0]">{(card.popHigher === undefined || card.popHigher === null) ? 'N/A' : (card.popHigher === 0 ? t('results.metrics.noneApex') : card.popHigher)}</div>
             </div>
             <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="text-xs mb-1" style={{ color: 'rgba(248,246,240,0.5)' }}>{t('results.metrics.grade')}</div>
@@ -262,7 +268,7 @@ export default function CardResults({ onNavigate }: Props) {
                 <span className="text-sm font-bold text-[#F8F6F0]">{t('results.aiRec.title')}</span>
               </div>
               <span className="px-4 py-1.5 rounded-full text-sm font-black uppercase" style={{ background: recColor, color: '#0A0F1C' }}>
-                {t(`dashboard.stats.${card.recommendation.toLowerCase()}`)}
+                {card.recommendation.toUpperCase()}
               </span>
             </div>
             <p className="text-sm leading-relaxed" style={{ color: 'rgba(248,246,240,0.7)' }}>

@@ -208,6 +208,89 @@ export async function scanCardByTokenId(tokenId: string): Promise<Card> {
   };
 }
 
+// ── Marketplace API types & functions ──
+
+export interface MarketplaceCard {
+  tokenId: string;
+  name: string;
+  setName: string;
+  cardNumber: string;
+  pokemonName: string;
+  ownerAddress: string;
+  askPriceInUSDT: string;
+  fmvPriceInUSD: string;
+  vaultLocation: string;
+  grade: string;
+  gradingCompany: string;
+  year: number;
+  attributes: { trait: string; value: string }[];
+}
+
+export interface MarketplaceResponse {
+  collection: MarketplaceCard[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+  };
+}
+
+const MARKETPLACE_BASE = 'https://api.renaiss.xyz/v0/marketplace';
+
+export async function fetchMarketplaceCards(
+  search?: string,
+  limit = 20,
+  offset = 0
+): Promise<MarketplaceResponse> {
+  const params = new URLSearchParams();
+  params.set('limit', String(limit));
+  params.set('offset', String(offset));
+  if (search) params.set('search', search);
+
+  const res = await fetch(`${MARKETPLACE_BASE}?${params.toString()}`);
+  if (!res.ok) throw new Error(`Marketplace API error: ${res.status}`);
+  return res.json();
+}
+
+/** Derive aggregate market stats from a batch of marketplace cards */
+export function deriveMarketStats(cards: MarketplaceCard[]) {
+  let totalValue = 0;
+  const setCounts: Record<string, { count: number; totalValue: number; years: number[] }> = {};
+  const gradeCounts: Record<string, number> = {};
+
+  for (const c of cards) {
+    const fmv = parseFloat(c.fmvPriceInUSD) || 0;
+    totalValue += fmv;
+
+    // Sets
+    const setKey = c.setName.replace(/^Pokemon\s+(Japanese\s+)?/i, '').trim();
+    if (!setCounts[setKey]) setCounts[setKey] = { count: 0, totalValue: 0, years: [] };
+    setCounts[setKey].count++;
+    setCounts[setKey].totalValue += fmv;
+    if (c.year) setCounts[setKey].years.push(c.year);
+
+    // Grades
+    const grade = c.grade.split(' ')[0]; // "10", "9", "8"
+    gradeCounts[grade] = (gradeCounts[grade] || 0) + 1;
+  }
+
+  const avgPrice = cards.length ? totalValue / cards.length : 0;
+
+  // Top sets by count
+  const topSets = Object.entries(setCounts)
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, 8)
+    .map(([name, data]) => ({
+      name,
+      count: data.count,
+      avgValue: data.count ? data.totalValue / data.count : 0,
+      year: data.years.length ? Math.min(...data.years).toString() : 'N/A',
+    }));
+
+  return { totalValue, avgPrice, topSets, gradeCounts, totalCards: cards.length };
+}
+
 export async function fetchWalletPortfolio(walletAddress: string): Promise<Card[]> {
   try {
     const provider = new ethers.JsonRpcProvider('https://bsc-dataseed.binance.org/');

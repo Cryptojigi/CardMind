@@ -4,6 +4,8 @@
 
 Trading card markets are currently fragmented, lacking real-time liquidity signals and transparent valuations. CardMind solves this by combining multi-agent AI analysis with live blockchain metrics, turning static card collections into dynamic, data-driven portfolios.
 
+**🌐 Try the Live App:** [https://cardmind-ai.vercel.app/](https://cardmind-ai.vercel.app/)
+
 ![CardMind Preview](./public/landing.png)
 
 ## 🌟 Features
@@ -56,6 +58,7 @@ npm run dev
 
 ## 🔗 Links
 
+- **Live App**: [https://cardmind-ai.vercel.app/](https://cardmind-ai.vercel.app/)
 - **X (Twitter)**: [https://x.com/CardMindAI](https://x.com/CardMindAI)
 - **GitHub**: [https://github.com/Cryptojigi/CardMind](https://github.com/Cryptojigi/CardMind)
 

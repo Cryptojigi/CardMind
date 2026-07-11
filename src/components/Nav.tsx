@@ -3,6 +3,7 @@ import { useGlobalState } from '../context/GlobalStateContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useState } from 'react';
 import DisconnectModal from './DisconnectModal';
+import LanguageDropdown from './LanguageDropdown';
 
 type Screen = 'landing' | 'dashboard' | 'scanner' | 'results' | 'portfolio' | 'chat' | 'market';
 
@@ -22,7 +23,7 @@ const appNavItems: { labelKey: string; screen: Screen; icon: string }[] = [
 
 export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavProps) {
   const { isWalletConnected, walletAddress, disconnectWallet, isUsingMockData, isFetchingPortfolio, activeScan, setIsWalletModalOpen } = variant === 'app' ? useGlobalState() : { isWalletConnected: false, walletAddress: '', disconnectWallet: () => {}, isUsingMockData: false, isFetchingPortfolio: false, activeScan: null, setIsWalletModalOpen: () => {} };
-  const { t, language, toggleLanguage } = useLanguage();
+  const { t, language } = useLanguage();
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
 
   if (variant === 'landing') {
@@ -55,9 +56,7 @@ export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavP
             >
               About
             </button>
-            <button onClick={toggleLanguage} className="text-sm font-medium text-[#00F5FF] hover:text-[#FF00E5] transition-colors">
-              {language === 'en' ? '中文' : 'EN'}
-            </button>
+            <LanguageDropdown />
           </div>
           <button
             onClick={() => onNavigate('dashboard')}
@@ -156,10 +155,7 @@ export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavP
                 </button>
               )
             )}
-            
-            <button onClick={toggleLanguage} className="text-xs font-bold text-[#F8F6F0] px-2 py-1 rounded" style={{ background: 'rgba(255,255,255,0.1)' }}>
-              {language === 'en' ? '中文' : 'EN'}
-            </button>
+            <LanguageDropdown />
           </div>
         </div>
       </nav>

@@ -1,38 +1,45 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import en from '../locales/en';
 import zh from '../locales/zh';
+import ja from '../locales/ja';
 
-type Language = 'en' | 'zh';
+export type Language = 'en' | 'ja' | 'zh-CN';
 
 interface LanguageContextProps {
   language: Language;
-  toggleLanguage: () => void;
+  setLanguage: (lang: Language) => void;
   t: (key: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextProps | undefined>(undefined);
 
-const translations: Record<Language, any> = { en, zh };
+const translations: Record<string, any> = { 
+  en, 
+  zh, // Keep this mapping for backwards compatibility if needed
+  'zh-CN': zh,
+  ja
+};
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>('en');
 
   useEffect(() => {
     const savedLang = localStorage.getItem('cardmind_lang') as Language;
-    if (savedLang && (savedLang === 'en' || savedLang === 'zh')) {
-      setLanguage(savedLang);
+    if (savedLang && ['en', 'ja', 'zh-CN'].includes(savedLang)) {
+      setLanguageState(savedLang);
+    } else if (savedLang === 'zh' as any) {
+      setLanguageState('zh-CN');
     }
   }, []);
 
-  const toggleLanguage = () => {
-    const newLang = language === 'en' ? 'zh' : 'en';
-    setLanguage(newLang);
+  const setLanguage = (newLang: Language) => {
+    setLanguageState(newLang);
     localStorage.setItem('cardmind_lang', newLang);
   };
 
   const t = (keyString: string) => {
     const keys = keyString.split('.');
-    let current = translations[language];
+    let current = translations[language] || translations['en'];
     for (const key of keys) {
       if (current[key] === undefined) {
         // Fallback to english
@@ -49,7 +56,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <LanguageContext.Provider value={{ language, toggleLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );

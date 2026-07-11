@@ -10,6 +10,7 @@
     "format": "oxfmt"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "ethers": "^6.17.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

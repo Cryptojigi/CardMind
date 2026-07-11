@@ -18,7 +18,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function CardResults({ onNavigate }: Props) {
-  const { activeScan: card, portfolio, addCardToPortfolio } = useGlobalState();
+  const { activeScan: card, portfolio, addCardToPortfolio, setPendingChatPrompt } = useGlobalState();
   
   if (!card) {
     return (
@@ -120,7 +120,10 @@ export default function CardResults({ onNavigate }: Props) {
               {isAdded ? '✓ Added to Portfolio' : '◈ Add to Portfolio'}
             </button>
             <button
-              onClick={() => onNavigate('chat')}
+              onClick={() => {
+                setPendingChatPrompt(`Tell me about my ${card.name} ${card.grader} ${card.grade}`);
+                onNavigate('chat');
+              }}
               className="w-full py-3 rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-105"
               style={{ background: 'rgba(255,0,229,0.1)', border: '1px solid rgba(255,0,229,0.3)', color: '#FF00E5' }}
             >

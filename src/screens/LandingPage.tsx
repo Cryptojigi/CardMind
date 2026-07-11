@@ -215,7 +215,7 @@ export default function LandingPage({ onNavigate }: Props) {
       </section>
 
       {/* How it Works */}
-      <section className="relative py-8 md:py-12" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <section id="how-it-works" className="relative py-8 md:py-12" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-8">
             <h2 className="text-4xl md:text-5xl font-black text-[#F8F6F0]" style={{ fontFamily: 'Poppins, sans-serif' }}>

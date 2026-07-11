@@ -14,6 +14,8 @@ interface GlobalState {
   disconnectWallet: () => void;
   isUsingMockData: boolean;
   setIsUsingMockData: (val: boolean) => void;
+  pendingChatPrompt: string | null;
+  setPendingChatPrompt: (prompt: string | null) => void;
 }
 
 const GlobalStateContext = createContext<GlobalState | undefined>(undefined);
@@ -25,6 +27,7 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [isUsingMockData, setIsUsingMockData] = useState(false);
+  const [pendingChatPrompt, setPendingChatPrompt] = useState<string | null>(null);
 
   const connectWallet = async () => {
     if (typeof window !== 'undefined' && (window as any).ethereum) {
@@ -84,6 +87,8 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         disconnectWallet,
         isUsingMockData,
         setIsUsingMockData,
+        pendingChatPrompt,
+        setPendingChatPrompt,
       }}
     >
       {children}

@@ -22,7 +22,8 @@ export default function Logo({ size = 'md', showText = true }: LogoProps) {
           height: s.icon, 
           objectFit: 'contain',
           transform: 'scale(2.2)', // Zooms in to remove transparent padding
-          marginRight: size === 'lg' ? '-4px' : size === 'md' ? '-2px' : '0px', // Pulls the text closer
+          transformOrigin: 'left center', // Keep it aligned to the left edge
+          marginRight: size === 'lg' ? '32px' : size === 'md' ? '22px' : '16px', // Give space for the scaled image
           filter: 'brightness(1.3) contrast(1.2) drop-shadow(0 0 6px rgba(0,245,255,0.4))' // Makes it bolder and glow
         }} 
       />

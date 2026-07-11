@@ -23,13 +23,22 @@ export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavP
   if (variant === 'landing') {
     return (
       <nav className="fixed top-0 left-0 right-0 z-50" style={{ background: 'rgba(10,15,28,0.85)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="w-full px-6 md:px-12 py-4 flex items-center justify-between">
           <button onClick={() => onNavigate('landing')} className="hover:opacity-80 transition-opacity">
             <Logo size="md" />
           </button>
           <div className="hidden md:flex items-center gap-8">
             <button className="text-sm font-medium text-[#F8F6F0] opacity-60 hover:opacity-100 transition-opacity">Features</button>
-            <button className="text-sm font-medium text-[#F8F6F0] opacity-60 hover:opacity-100 transition-opacity">How it Works</button>
+            <button 
+              onClick={() => {
+                if (variant === 'landing') {
+                  document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              className="text-sm font-medium text-[#F8F6F0] opacity-60 hover:opacity-100 transition-opacity"
+            >
+              How it Works
+            </button>
             <button className="text-sm font-medium text-[#F8F6F0] opacity-60 hover:opacity-100 transition-opacity">Docs</button>
             <button className="text-sm font-medium text-[#F8F6F0] opacity-60 hover:opacity-100 transition-opacity">About</button>
           </div>
@@ -53,7 +62,7 @@ export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavP
     <>
       {/* Top nav */}
       <nav className="fixed top-0 left-0 right-0 z-50" style={{ background: 'rgba(10,15,28,0.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+        <div className="w-full px-6 md:px-12 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button onClick={() => onNavigate('landing')} className="hover:opacity-80 transition-opacity">
               <Logo size="sm" />

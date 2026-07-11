@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { chatHistory, smartPrompts, mockCards, Card } from '../data/mockData';
 import { useGlobalState } from '../context/GlobalStateContext';
+import { askGemini } from '../services/geminiApi';
 import Logo from '../components/Logo';
 
 type Screen = 'landing' | 'dashboard' | 'scanner' | 'results' | 'portfolio' | 'chat' | 'market';
@@ -106,7 +107,7 @@ const getAgentSteps = (query: string): string[] => {
 };
 
 export default function AIChat({ onNavigate }: Props) {
-  const { portfolio, activeScan } = useGlobalState();
+  const { portfolio, activeScan, pendingChatPrompt, setPendingChatPrompt } = useGlobalState();
   const [messages, setMessages] = useState<Message[]>([...chatHistory]);
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
@@ -116,6 +117,13 @@ export default function AIChat({ onNavigate }: Props) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isThinking]);
+
+  useEffect(() => {
+    if (pendingChatPrompt) {
+      setInput(pendingChatPrompt);
+      setPendingChatPrompt(null);
+    }
+  }, [pendingChatPrompt, setPendingChatPrompt]);
 
   const sendMessage = async (text?: string) => {
     const query = text || input.trim();
@@ -130,16 +138,34 @@ export default function AIChat({ onNavigate }: Props) {
     setMessages(prev => [...prev, userMsg]);
     setIsThinking(true);
 
+    // Show thinking animation while Gemini processes
     const steps = getAgentSteps(query);
-    for (const step of steps) {
-      setThinkingStep(step);
-      await new Promise(r => setTimeout(r, 800));
+    const stepPromise = (async () => {
+      for (const step of steps) {
+        setThinkingStep(step);
+        await new Promise(r => setTimeout(r, 600));
+      }
+    })();
+
+    // Call real Gemini API in parallel with thinking animation
+    let responseText: string;
+    try {
+      const historyForGemini = messages.map(m => ({ role: m.role, content: m.content }));
+      const [geminiResponse] = await Promise.all([
+        askGemini(query, portfolio, activeScan, historyForGemini),
+        stepPromise,
+      ]);
+      responseText = geminiResponse;
+    } catch (err) {
+      console.warn('Gemini API failed, using fallback:', err);
+      await stepPromise;
+      responseText = getResponse(query, portfolio, activeScan);
     }
 
     setIsThinking(false);
     const aiMsg: Message = {
       role: 'assistant',
-      content: getResponse(query, portfolio, activeScan),
+      content: responseText,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       agents: ['Market Agent', 'Portfolio Agent', 'Renaiss Agent'],
     };
@@ -165,31 +191,30 @@ export default function AIChat({ onNavigate }: Props) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 md:px-6 py-6 flex flex-col" style={{ height: 'calc(100vh - 68px)' }}>
-      {/* Header */}
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <div className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: '#FF00E5' }}>AI Advisor</div>
-          <h1 className="text-2xl md:text-3xl font-black text-[#F8F6F0]" style={{ fontFamily: 'Poppins, sans-serif' }}>
-            CardMind <span className="gradient-text">AI Chat</span>
+    <div className="max-w-5xl mx-auto px-4 md:px-6 py-3 flex flex-col" style={{ height: 'calc(100vh - 68px)' }}>
+      {/* Compact Header */}
+      <div className="mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h1 className="text-lg md:text-xl font-black text-[#F8F6F0]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            <span className="text-xs font-bold tracking-widest uppercase mr-2" style={{ color: '#FF00E5' }}>AI</span>
+            CardMind <span className="gradient-text">Chat</span>
           </h1>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: 'rgba(0,245,255,0.1)', border: '1px solid rgba(0,245,255,0.25)', color: '#00F5FF' }}>
-          <div className="w-2 h-2 rounded-full bg-[#00E676] animate-pulse" />
+        <div className="flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(0,245,255,0.1)', border: '1px solid rgba(0,245,255,0.25)', color: '#00F5FF' }}>
+          <div className="w-1.5 h-1.5 rounded-full bg-[#00E676] animate-pulse" />
           3 Agents Active
         </div>
       </div>
 
       {/* Smart Prompts */}
       {messages.length <= 1 && (
-        <div className="mb-4">
-          <div className="text-xs font-semibold mb-2" style={{ color: 'rgba(248,246,240,0.5)' }}>Quick questions:</div>
-          <div className="flex flex-wrap gap-2">
-            {smartPrompts.map((prompt) => (
+        <div className="mb-2">
+          <div className="flex flex-wrap gap-1.5">
+            {smartPrompts.slice(0, 4).map((prompt) => (
               <button
                 key={prompt}
                 onClick={() => sendMessage(prompt)}
-                className="px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105"
+                className="px-2.5 py-1 rounded-full text-[11px] font-medium transition-all hover:scale-105"
                 style={{ background: 'rgba(0,245,255,0.08)', border: '1px solid rgba(0,245,255,0.2)', color: 'rgba(0,245,255,0.9)' }}
               >
                 {prompt}
@@ -200,7 +225,7 @@ export default function AIChat({ onNavigate }: Props) {
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto space-y-4 pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,245,255,0.3) transparent' }}>
+      <div className="flex-1 overflow-y-auto space-y-3 pr-1 min-h-0" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,245,255,0.3) transparent' }}>
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             {msg.role === 'assistant' && (
@@ -208,7 +233,7 @@ export default function AIChat({ onNavigate }: Props) {
                 <span className="text-xs">✦</span>
               </div>
             )}
-            <div className="max-w-[80%]">
+            <div className="max-w-[90%] md:max-w-[85%]">
               {msg.role === 'assistant' && msg.agents && (
                 <div className="flex gap-1.5 mb-2 flex-wrap">
                   {msg.agents.map(a => (
@@ -260,44 +285,43 @@ export default function AIChat({ onNavigate }: Props) {
       </div>
 
       {/* Context card reference */}
-      <div className="my-3 flex items-center gap-3 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-        <span className="text-[10px] font-semibold flex-shrink-0" style={{ color: 'rgba(248,246,240,0.4)' }}>Context:</span>
+      <div className="mt-2 mb-1 flex items-center gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+        <span className="text-[9px] font-semibold flex-shrink-0" style={{ color: 'rgba(248,246,240,0.35)' }}>Context:</span>
         {(portfolio.length > 0 ? portfolio : mockCards).slice(0, 3).map(card => (
           <button key={card.id}
             onClick={() => sendMessage(`Tell me about my ${card.name} ${card.grader} ${card.grade}`)}
-            className="flex-shrink-0 px-3 py-1 rounded-full text-[10px] font-semibold transition-all hover:scale-105"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(248,246,240,0.6)' }}>
+            className="flex-shrink-0 px-2 py-0.5 rounded-full text-[9px] font-semibold transition-all hover:scale-105"
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(248,246,240,0.5)' }}>
             {card.name} {card.grader}{card.grade}
           </button>
         ))}
       </div>
 
       {/* Input */}
-      <div className="flex gap-3 items-end">
-        <div className="flex-1 rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)' }}>
-          <textarea
+      <div className="flex gap-2 items-center">
+        <div className="flex-1 rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)' }}>
+          <input
+            type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } }}
             placeholder="Ask about card values, market trends, portfolio advice..."
-            rows={2}
-            className="w-full bg-transparent px-4 py-3 text-sm resize-none focus:outline-none"
+            className="w-full bg-transparent px-4 py-2.5 text-sm focus:outline-none"
             style={{ color: '#F8F6F0', fontFamily: 'Poppins, sans-serif' }}
           />
         </div>
         <button
           onClick={() => sendMessage()}
           disabled={!input.trim() || isThinking}
-          className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg transition-all duration-300 hover:scale-105 disabled:opacity-40"
+          className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-base transition-all duration-300 hover:scale-105 disabled:opacity-40"
           style={{ background: 'linear-gradient(135deg, #00F5FF, #FF00E5)', color: '#0A0F1C' }}
         >
           ↑
         </button>
       </div>
 
-      <div className="mt-3 text-[10px] text-center leading-relaxed" style={{ color: 'rgba(248,246,240,0.4)' }}>
-        AI responses are generated with context from your scans and portfolio. Some data may be simulated for demo purposes.<br/>
-        <span style={{ color: 'rgba(248,246,240,0.2)' }}>Powered by Renaiss Index API (Public) · For informational purposes only · Not financial advice</span>
+      <div className="mt-1 mb-1 text-[9px] text-center" style={{ color: 'rgba(248,246,240,0.3)' }}>
+        AI responses may include simulated data · Powered by Renaiss Index API (Public) · Not financial advice
       </div>
     </div>
   );

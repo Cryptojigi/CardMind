@@ -11,22 +11,39 @@ export default function Logo({ size = 'md', showText = true }: LogoProps) {
   };
 
   const s = sizes[size];
+  // Determine the visual size. The original image has transparent padding.
+  // We'll make the actual image element larger and use negative margins to pull it tight.
+  const scale = 1.8;
+  const imgSize = s.icon * scale;
+  // Calculate the amount of extra space the scaled image takes up
+  const overflow = (imgSize - s.icon) / 2;
 
   return (
-    <div className={`flex items-center ${s.gap}`}>
-      <img 
-        src="/logo.png" 
-        alt="CardMind Logo" 
+    <div className="flex items-center">
+      <div 
         style={{ 
           width: s.icon, 
           height: s.icon, 
-          objectFit: 'contain',
-          transform: 'scale(2.2)', // Zooms in to remove transparent padding
-          transformOrigin: 'left center', // Keep it aligned to the left edge
-          marginRight: size === 'lg' ? '32px' : size === 'md' ? '22px' : '16px', // Give space for the scaled image
-          filter: 'brightness(1.3) contrast(1.2) drop-shadow(0 0 6px rgba(0,245,255,0.4))' // Makes it bolder and glow
-        }} 
-      />
+          position: 'relative',
+          flexShrink: 0,
+          marginRight: size === 'lg' ? 24 : size === 'md' ? 14 : 10 // Space between logo and text
+        }}
+      >
+        <img 
+          src="/logo.png" 
+          alt="CardMind Logo" 
+          style={{ 
+            position: 'absolute',
+            top: -overflow,
+            left: -overflow,
+            width: imgSize, 
+            height: imgSize, 
+            maxWidth: 'none',
+            objectFit: 'contain',
+            filter: 'brightness(1.3) contrast(1.2) drop-shadow(0 0 6px rgba(0,245,255,0.4))'
+          }} 
+        />
+      </div>
       {showText && (
         <span
           className={`font-bold ${s.text} tracking-tight`}

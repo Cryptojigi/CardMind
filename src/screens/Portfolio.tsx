@@ -260,7 +260,7 @@ export default function Portfolio({ onNavigate }: Props) {
                 <div className="rounded-xl mb-3 flex items-center justify-center text-3xl relative overflow-hidden"
                   style={{ height: 90, background: 'linear-gradient(145deg, rgba(0,245,255,0.1), rgba(255,0,229,0.1))', border: '1px solid rgba(0,245,255,0.15)' }}>
                   {card.image ? (
-                    <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+                    <img src={card.image} alt={card.name} className="w-full h-full object-contain" />
                   ) : (
                     <span className="text-sm font-bold text-gray-500">{t('portfolio.grid.noImage')}</span>
                   )}

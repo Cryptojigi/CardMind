@@ -166,7 +166,7 @@ export default function CardScanner({ onNavigate }: Props) {
                   <div className="text-sm font-bold text-[#F8F6F0]">{t('scanner.actions.enterTitle')}</div>
                   <button onClick={() => setShowTokenInput(false)} className="text-xs opacity-60 hover:opacity-100" style={{ color: '#F8F6F0' }}>{t('scanner.actions.cancel')}</button>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <input
                     type="text"
                     value={tokenId}
@@ -200,7 +200,7 @@ export default function CardScanner({ onNavigate }: Props) {
           {/* Scan visual */}
           <div className="relative mx-auto mb-8 rounded-2xl overflow-hidden" style={{ width: 200, height: 280, background: 'linear-gradient(145deg, rgba(0,245,255,0.1), rgba(255,0,229,0.1))', border: '2px solid rgba(0,245,255,0.4)' }}>
             {previewUrl ? (
-              <img src={previewUrl} className="w-full h-full object-cover" alt="Scan Preview" />
+              <img src={previewUrl} className="w-full h-full object-contain" alt="Scan Preview" />
             ) : (
               <div className="flex items-center justify-center h-full text-6xl opacity-50">🔍</div>
             )}

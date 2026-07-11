@@ -85,7 +85,7 @@ export default function CardResults({ onNavigate }: Props) {
             <div className={`flex flex-col items-center ${card.grade !== 'Ungraded' ? 'p-3 pt-4' : 'p-0 h-full'}`}>
               <div className="rounded-xl holo-card flex items-center justify-center mb-3 overflow-hidden relative w-full max-w-[220px]" style={{ aspectRatio: '2.5/3.5', background: 'linear-gradient(145deg, #1A2235, #0A0F1C)', border: '1px solid rgba(255,255,255,0.05)', boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5)' }}>
                 {card.image ? (
-                  <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+                  <img src={card.image} alt={card.name} className="w-full h-full object-contain" />
                 ) : (
                   <div className="flex flex-col items-center justify-center opacity-40">
                     <div className="w-12 h-12 rounded-full border border-current flex items-center justify-center mb-2" style={{ color: '#00F5FF' }}>

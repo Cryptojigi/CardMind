@@ -118,7 +118,7 @@ export default function Dashboard({ onNavigate }: Props) {
                 <div className="rounded-xl mb-3 flex items-center justify-center text-4xl relative overflow-hidden"
                   style={{ height: 120, background: 'linear-gradient(145deg, rgba(0,245,255,0.1), rgba(255,0,229,0.1))', border: '1px solid rgba(0,245,255,0.2)' }}>
                   {card.image ? (
-                    <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+                    <img src={card.image} alt={card.name} className="w-full h-full object-contain" />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-gray-800">
                       <span className="text-sm font-bold text-gray-500">{t('dashboard.recentScans.noImage')}</span>

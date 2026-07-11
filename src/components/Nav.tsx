@@ -1,6 +1,8 @@
 import Logo from './Logo';
 import { useGlobalState } from '../context/GlobalStateContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useState } from 'react';
+import DisconnectModal from './DisconnectModal';
 
 type Screen = 'landing' | 'dashboard' | 'scanner' | 'results' | 'portfolio' | 'chat' | 'market';
 
@@ -21,6 +23,7 @@ const appNavItems: { labelKey: string; screen: Screen; icon: string }[] = [
 export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavProps) {
   const { isWalletConnected, walletAddress, disconnectWallet, isUsingMockData, isFetchingPortfolio, activeScan, setIsWalletModalOpen } = variant === 'app' ? useGlobalState() : { isWalletConnected: false, walletAddress: '', disconnectWallet: () => {}, isUsingMockData: false, isFetchingPortfolio: false, activeScan: null, setIsWalletModalOpen: () => {} };
   const { t, language, toggleLanguage } = useLanguage();
+  const [showDisconnectModal, setShowDisconnectModal] = useState(false);
 
   if (variant === 'landing') {
     return (
@@ -116,7 +119,7 @@ export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavP
           {currentScreen === 'portfolio' ? (
             isWalletConnected ? (
               <button
-                onClick={disconnectWallet}
+                onClick={() => setShowDisconnectModal(true)}
                 className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-105 flex items-center gap-2"
                 style={{
                   background: 'rgba(0,230,118,0.1)',
@@ -190,6 +193,8 @@ export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavP
           })}
         </div>
       </nav>
+      
+      <DisconnectModal isOpen={showDisconnectModal} onClose={() => setShowDisconnectModal(false)} />
     </>
   );
 }

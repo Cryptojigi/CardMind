@@ -18,6 +18,12 @@ interface GlobalState {
   pendingChatPrompt: string | null;
   setPendingChatPrompt: (prompt: string | null) => void;
   isFetchingPortfolio: boolean;
+  toastMessage: string | null;
+  toastType: 'error' | 'info' | 'success';
+  showToast: (msg: string, type?: 'error' | 'info' | 'success') => void;
+  hideToast: () => void;
+  isWalletModalOpen: boolean;
+  setIsWalletModalOpen: (open: boolean) => void;
 }
 
 const GlobalStateContext = createContext<GlobalState | undefined>(undefined);
@@ -55,6 +61,19 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
   const [isUsingMockData, setIsUsingMockData] = useState(false);
   const [pendingChatPrompt, setPendingChatPrompt] = useState<string | null>(null);
   const [isFetchingPortfolio, setIsFetchingPortfolio] = useState(false);
+  
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<'error' | 'info' | 'success'>('info');
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+
+  const showToast = (msg: string, type: 'error' | 'info' | 'success' = 'info') => {
+    setToastMessage(msg);
+    setToastType(type);
+  };
+
+  const hideToast = () => {
+    setToastMessage(null);
+  };
 
   const connectWallet = async () => {
     if (typeof window !== 'undefined' && (window as any).ethereum) {
@@ -110,26 +129,10 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.error('Wallet connection failed:', error);
-        alert('Failed to connect wallet.');
+        showToast('Failed to connect wallet.', 'error');
       }
     } else {
-      // Fallback for demo if no wallet extension exists, use a known holder address
-      setIsWalletConnected(true);
-      const fallbackAddress = '0xa044c320755224bbb988a9795a64313b3a677d33';
-      setWalletAddress(`${fallbackAddress.slice(0, 6)}...${fallbackAddress.slice(-4)}`);
-      alert('No Web3 wallet detected. Falling back to a demo address to fetch an on-chain portfolio.');
-      
-      setIsFetchingPortfolio(true);
-      try {
-        const fetchedCards = await fetchWalletPortfolio(fallbackAddress);
-        if (fetchedCards.length > 0) {
-          setPortfolio(fetchedCards);
-        }
-      } catch (e) {
-         console.error("Failed fetching on-chain portfolio", e);
-      } finally {
-         setIsFetchingPortfolio(false);
-      }
+      showToast('No Web3 wallet detected. Please install a wallet (e.g., MetaMask) to connect.', 'error');
     }
   };
 
@@ -172,6 +175,12 @@ export function GlobalStateProvider({ children }: { children: ReactNode }) {
         pendingChatPrompt,
         setPendingChatPrompt,
         isFetchingPortfolio,
+        toastMessage,
+        toastType,
+        showToast,
+        hideToast,
+        isWalletModalOpen,
+        setIsWalletModalOpen,
       }}
     >
       {children}

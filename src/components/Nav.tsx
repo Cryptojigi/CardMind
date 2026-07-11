@@ -19,7 +19,7 @@ const appNavItems: { labelKey: string; screen: Screen; icon: string }[] = [
 ];
 
 export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavProps) {
-  const { isWalletConnected, walletAddress, connectWallet, disconnectWallet, isUsingMockData, isFetchingPortfolio, activeScan } = variant === 'app' ? useGlobalState() : { isWalletConnected: false, walletAddress: '', connectWallet: () => {}, disconnectWallet: () => {}, isUsingMockData: false, isFetchingPortfolio: false, activeScan: null };
+  const { isWalletConnected, walletAddress, disconnectWallet, isUsingMockData, isFetchingPortfolio, activeScan, setIsWalletModalOpen } = variant === 'app' ? useGlobalState() : { isWalletConnected: false, walletAddress: '', disconnectWallet: () => {}, isUsingMockData: false, isFetchingPortfolio: false, activeScan: null, setIsWalletModalOpen: () => {} };
   const { t, language, toggleLanguage } = useLanguage();
 
   if (variant === 'landing') {
@@ -42,7 +42,16 @@ export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavP
               How it Works
             </button>
             <button className="text-sm font-medium text-[#F8F6F0] opacity-60 hover:opacity-100 transition-opacity">Docs</button>
-            <button className="text-sm font-medium text-[#F8F6F0] opacity-60 hover:opacity-100 transition-opacity">About</button>
+            <button 
+              onClick={() => {
+                if (variant === 'landing') {
+                  document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              className="text-sm font-medium text-[#F8F6F0] opacity-60 hover:opacity-100 transition-opacity"
+            >
+              About
+            </button>
             <button onClick={toggleLanguage} className="text-sm font-medium text-[#00F5FF] hover:text-[#FF00E5] transition-colors">
               {language === 'en' ? '中文' : 'EN'}
             </button>
@@ -120,7 +129,7 @@ export default function Nav({ currentScreen, onNavigate, variant = 'app' }: NavP
               </button>
             ) : (
               <button
-                onClick={connectWallet}
+                onClick={() => setIsWalletModalOpen(true)}
                 disabled={isFetchingPortfolio}
                 className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-105 flex items-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
                 style={{

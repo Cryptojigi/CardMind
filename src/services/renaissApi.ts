@@ -72,12 +72,7 @@ export async function scanCardImage(file: File): Promise<Card> {
   });
 
   if (response.status === 429) {
-    console.warn("API Rate limit hit (429). Falling back to demo data.");
-    return {
-      ...mockCards[0],
-      id: `scan_img_mock_${Date.now()}`,
-      isMockFallback: true,
-    };
+    throw new Error('API Rate limit exceeded. Please try again later.');
   }
 
   if (!response.ok) {
@@ -147,12 +142,7 @@ export async function scanCardByCert(cert: string): Promise<Card> {
   });
 
   if (response.status === 429) {
-    console.warn("API Rate limit hit (429). Falling back to demo data.");
-    return {
-      ...mockCards[0],
-      id: `scan_cert_mock_${Date.now()}`,
-      isMockFallback: true,
-    };
+    throw new Error('API Rate limit exceeded. Please try again later.');
   }
 
   if (!response.ok) {
@@ -172,12 +162,7 @@ export async function scanCardByTokenId(tokenId: string): Promise<Card> {
   });
 
   if (response.status === 429) {
-    console.warn("API Rate limit hit (429). Falling back to demo data.");
-    return {
-      ...mockCards[0],
-      id: `scan_token_mock_${Date.now()}`,
-      isMockFallback: true,
-    };
+    throw new Error('API Rate limit exceeded. Please try again later.');
   }
 
   if (!response.ok) {

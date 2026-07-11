@@ -7,6 +7,8 @@ import CardResults from './screens/CardResults';
 import Portfolio from './screens/Portfolio';
 import AIChat from './screens/AIChat';
 import MarketInsights from './screens/MarketInsights';
+import Toast from './components/Toast';
+import WalletModal from './components/WalletModal';
 
 export type Screen = 'landing' | 'dashboard' | 'scanner' | 'results' | 'portfolio' | 'chat' | 'market';
 
@@ -26,6 +28,8 @@ export default function App() {
       <>
         <Nav currentScreen="landing" onNavigate={navigate} variant="landing" />
         <LandingPage onNavigate={navigate} />
+        <Toast />
+        <WalletModal />
       </>
     );
   }
@@ -41,6 +45,8 @@ export default function App() {
         {screen === 'chat' && <AIChat onNavigate={navigate} />}
         {screen === 'market' && <MarketInsights onNavigate={navigate} />}
       </div>
+      <Toast />
+      <WalletModal />
     </div>
   );
 }

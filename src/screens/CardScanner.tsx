@@ -10,6 +10,7 @@ type ScanState = 'idle' | 'processing' | 'done';
 
 export default function CardScanner({ onNavigate }: Props) {
   const { t } = useLanguage();
+  const { setActiveScan, addRecentScan, setIsUsingMockData, showToast } = useGlobalState();
 
   const agents = [
     { name: t('scanner.agents.cardId.name'), task: t('scanner.agents.cardId.task'), done: false },
@@ -25,8 +26,6 @@ export default function CardScanner({ onNavigate }: Props) {
   const [tokenId, setTokenId] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  const { setActiveScan, addRecentScan, setIsUsingMockData } = useGlobalState();
 
   const startScan = async (file?: File, certId?: string) => {
     setScanState('processing');
@@ -60,8 +59,7 @@ export default function CardScanner({ onNavigate }: Props) {
           result = await scanCardByCert(input);
         }
       } else {
-        // Fallback for sample cards
-        result = await scanCardByCert('PSA151238633');
+        throw new Error('Please provide an image, cert ID, or token ID to scan.');
       }
 
       clearInterval(interval);
@@ -82,8 +80,8 @@ export default function CardScanner({ onNavigate }: Props) {
       }, 800);
     } catch (err: any) {
       clearInterval(interval);
-      console.error('Scan error:', err);
-      alert('Error during scan: ' + err.message);
+      console.error('Scan failed:', err);
+      showToast('Error during scan: ' + err.message, 'error');
       setScanState('idle');
     }
   };
@@ -193,23 +191,6 @@ export default function CardScanner({ onNavigate }: Props) {
               </div>
             </div>
           )}
-
-          {/* Sample cards to scan */}
-          <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <div className="text-sm font-bold text-[#F8F6F0] mb-4">{t('scanner.sampleCards.title')}</div>
-            <div className="flex flex-wrap gap-3">
-              {['Charizard PSA 10 Base Set', 'Lugia PSA 9 Neo Genesis', 'Rayquaza PSA 10 EX Deoxys'].map((name) => (
-                <button
-                  key={name}
-                  onClick={() => startScan()}
-                  className="px-4 py-2 rounded-full text-xs font-semibold transition-all hover:scale-105"
-                  style={{ background: 'rgba(0,245,255,0.1)', border: '1px solid rgba(0,245,255,0.25)', color: '#00F5FF' }}
-                >
-                  {name}
-                </button>
-              ))}
-            </div>
-          </div>
         </>
       )}
 

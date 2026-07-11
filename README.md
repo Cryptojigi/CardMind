@@ -4,7 +4,7 @@
 
 Trading card markets are currently fragmented, lacking real-time liquidity signals and transparent valuations. CardMind solves this by combining multi-agent AI analysis with live blockchain metrics, turning static card collections into dynamic, data-driven portfolios.
 
-![CardMind Preview](./public/logo.png) <!-- Note: Feel free to replace this logo with a full screenshot of the dashboard! -->
+![CardMind Preview](./public/landing.png) <!-- Note: Feel free to replace this logo with a full screenshot of the dashboard! -->
 
 ## 🌟 Features
 - **Smart Scanning**: Scan graded cards via image upload or certification number.

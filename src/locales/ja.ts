@@ -154,7 +154,7 @@ const ja = {
       change30d: '30日間の変化',
       pnl: 'あなたの損益',
       popReport: 'POPレポート',
-      priceHistory: '価格履歴 (7ヶ月)',
+      priceHistory: '価格履歴',
       noPriceHistory: 'このカードの価格履歴は利用できません',
       rarity: 'レアリティ',
       liquidityScore: '流動性スコア',

@@ -154,7 +154,7 @@ const zh = {
       change30d: '30 天变化',
       pnl: '您的盈亏',
       popReport: '数量报告',
-      priceHistory: '价格历史（7 个月）',
+      priceHistory: '价格历史',
       rarity: '稀有度',
       liquidityScore: '流动性评分',
       popHigher: '更高评级数量',
@@ -208,7 +208,7 @@ const zh = {
       roi: '投资回报率'
     },
     charts: {
-      perfTitle: '投资组合价值（7个月）',
+      perfTitle: '投资组合价值',
       divTitle: '多样化'
     },
     aiInsights: {

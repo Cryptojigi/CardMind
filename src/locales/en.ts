@@ -154,7 +154,7 @@ const en = {
       change30d: '30d Change',
       pnl: 'Your P&L',
       popReport: 'Pop Report',
-      priceHistory: 'Price History (7 Months)',
+      priceHistory: 'Price History',
       rarity: 'Rarity',
       liquidityScore: 'Liquidity Score',
       popHigher: 'Pop Higher',
@@ -208,7 +208,7 @@ const en = {
       roi: 'ROI'
     },
     charts: {
-      perfTitle: 'Portfolio Value (7 Months)',
+      perfTitle: 'Portfolio Value',
       divTitle: 'Diversification'
     },
     aiInsights: {

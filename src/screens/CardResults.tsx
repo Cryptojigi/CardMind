@@ -19,7 +19,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function CardResults({ onNavigate }: Props) {
-  const { activeScan: card, portfolio, addCardToPortfolio, setPendingChatPrompt, setActiveScan } = useGlobalState();
+  const { activeScan: card, portfolio, addCardToPortfolio, setPendingChatPrompt, setActiveScan, isWalletConnected } = useGlobalState();
   const { t } = useLanguage();
   
   if (!card) {
@@ -37,6 +37,9 @@ export default function CardResults({ onNavigate }: Props) {
   const isAdded = portfolio.some((c) => c.id === card.id);
   const gainLoss = card.currentValue - card.purchasePrice;
   const gainLossPct = ((gainLoss / card.purchasePrice) * 100).toFixed(1);
+
+  const isValidNumber = (v: any): v is number => typeof v === 'number' && !isNaN(v) && isFinite(v);
+  const has30dData = isValidNumber(card.changePercent30d) && isValidNumber(card.change30d);
 
   const recColors: Record<string, string> = { buy: '#00E676', hold: '#FFB800', sell: '#FF4444' };
   const recColor = recColors[card.recommendation];
@@ -170,14 +173,14 @@ export default function CardResults({ onNavigate }: Props) {
             <div className="flex gap-4 mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               <div>
                 <div className="text-xs" style={{ color: 'rgba(248,246,240,0.45)' }}>{t('results.metrics.change30d')}</div>
-                <div className="text-sm font-bold" style={{ color: card.currentValue ? (card.changePercent30d >= 0 ? '#00E676' : '#FF4444') : 'rgba(248,246,240,0.5)' }}>
-                  {card.currentValue ? `${card.changePercent30d >= 0 ? '+' : ''}${card.changePercent30d}% ($${Math.abs(card.change30d).toLocaleString()})` : 'N/A'}
+                <div className="text-sm font-bold" style={{ color: has30dData ? (card.changePercent30d >= 0 ? '#00E676' : '#FF4444') : 'rgba(248,246,240,0.5)' }}>
+                  {has30dData ? `${card.changePercent30d >= 0 ? '+' : ''}${card.changePercent30d}% ($${Math.abs(card.change30d).toLocaleString()})` : 'N/A'}
                 </div>
               </div>
               <div>
                 <div className="text-xs" style={{ color: 'rgba(248,246,240,0.45)' }}>{t('results.metrics.pnl')}</div>
-                <div className="text-sm font-bold" style={{ color: card.currentValue ? (gainLoss >= 0 ? '#00E676' : '#FF4444') : 'rgba(248,246,240,0.5)' }}>
-                  {card.currentValue ? `${gainLoss >= 0 ? '+' : ''}$${gainLoss.toLocaleString()} (${gainLossPct}%)` : 'N/A'}
+                <div className="text-sm font-bold" style={{ color: isWalletConnected && card.currentValue ? (gainLoss >= 0 ? '#00E676' : '#FF4444') : 'rgba(248,246,240,0.5)' }}>
+                  {isWalletConnected && card.currentValue ? `${gainLoss >= 0 ? '+' : ''}$${gainLoss.toLocaleString()} (${gainLossPct}%)` : 'N/A'}
                 </div>
               </div>
               <div>
